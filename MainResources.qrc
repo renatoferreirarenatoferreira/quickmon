@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/Icons">
+        <file alias="Add">MainResources/Icons/Add.svg</file>
+        <file alias="Remove">MainResources/Icons/Remove.svg</file>
+        <file alias="Search">MainResources/Icons/Search.svg</file>
+        <file alias="Edit">MainResources/Icons/Edit.svg</file>
+        <file alias="Ping">MainResources/Icons/Ping.svg</file>
+    </qresource>
+    <qresource prefix="/Styles">
+        <file alias="Main">MainResources/Styles/Main.qss</file>
+    </qresource>
+</RCC>
