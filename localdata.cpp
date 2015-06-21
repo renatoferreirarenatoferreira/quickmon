@@ -1,5 +1,4 @@
 #include "localdata.h"
-#include <QMutex>
 
 #ifdef QT_DEBUG
 #include <QDebug>

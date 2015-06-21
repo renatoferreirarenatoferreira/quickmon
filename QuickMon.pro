@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     pingwindow.cpp \
     dragablesqlquerymodel.cpp \
     toolslistwidget.cpp \
-    hoststreeview.cpp
+    hoststreeview.cpp \
+    pinger.cpp
 
 HEADERS  += mainwindow.h \
     localdata.h \
@@ -27,7 +28,8 @@ HEADERS  += mainwindow.h \
     pingwindow.h \
     dragablesqlquerymodel.h \
     toolslistwidget.h \
-    hoststreeview.h
+    hoststreeview.h \
+    pinger.h
 
 FORMS    += mainwindow.ui \
     hosteditor.ui \
