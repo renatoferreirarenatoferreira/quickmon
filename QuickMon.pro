@@ -45,3 +45,10 @@ RESOURCES += \
 VERSION = 0.1.0
 DEFINES += APPLICATION_NAME=\\\"QuickMon\\\"
 DEFINES += APPLICATION_VERSION=\\\"0.1.0\\\"
+
+QMAKE_TARGET_COMPANY = "Renato A. Ferreira"
+QMAKE_TARGET_DESCRIPTION = "Network troubleshooting tool."
+QMAKE_TARGET_COPYRIGHT = "Copyright (c) 2015 Renato A. Ferreira"
+QMAKE_TARGET_PRODUCT = "QuickMon"
+
+win32:RC_ICONS = quickmon.ico
