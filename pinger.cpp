@@ -13,6 +13,8 @@ Pinger::Pinger()
     this->sourceAddressIPv6.sin6_family = AF_INET6;
     this->sourceAddressIPv6.sin6_flowinfo = 0;
     this->sourceAddressIPv6.sin6_port = 0;
+
+    this->workerPool = new QThreadPool(this);
 }
 
 Pinger::~Pinger()
@@ -52,18 +54,24 @@ bool Pinger::supportIPv6()
     return !(this->hICMPv6File == INVALID_HANDLE_VALUE);
 }
 
-bool Pinger::ping(QHostAddress address, IPingReplyListener* listener)
+PingContext* Pinger::ping(QHostAddress address, IPingReplyListener* listener)
 {
     return this->ping(address, listener, 0, PINGER_PING_TTL, PINGER_PING_TIMEOUT);
 }
 
-bool Pinger::ping(QHostAddress address, IPingReplyListener* listener, int sequence, int ttl, int timeout)
+PingContext* Pinger::ping(QHostAddress address, IPingReplyListener* listener, int sequence, int ttl, int timeout)
 {
     //start data structure
     PingContext* contextStruct = new PingContext();
+    contextStruct->requestAddress = address;
     contextStruct->listener = (PVOID)listener;
     contextStruct->sequence = sequence;
+    contextStruct->timeout = timeout;
     contextStruct->protocol = address.protocol();
+    //copy shared handles and references
+    contextStruct->hICMPv4File = &this->hICMPv4File;
+    contextStruct->hICMPv6File = &this->hICMPv6File;
+    contextStruct->sourceAddressIPv6 = &this->sourceAddressIPv6;
 
     //set buffers
     contextStruct->sendData = (char*) malloc(PINGER_PING_SIZE);
@@ -72,7 +80,10 @@ bool Pinger::ping(QHostAddress address, IPingReplyListener* listener, int sequen
     else if (contextStruct->protocol == QAbstractSocket::IPv6Protocol)
         contextStruct->replyBuffer = (char*) malloc(sizeof(ICMPV6_ECHO_REPLY)+PINGER_PING_SIZE);
     else
-        return false;
+    {
+        delete contextStruct;
+        return NULL;
+    }
 
     //fill sendData with letters
     int c=0;
@@ -106,44 +117,13 @@ bool Pinger::ping(QHostAddress address, IPingReplyListener* listener, int sequen
     free(wCharAddress);
 
     //set ttl
-    IP_OPTION_INFORMATION options;
-    memset((void *) &options, 0, sizeof(IP_OPTION_INFORMATION));
-    options.Ttl = ttl;
+    memset((void *) &contextStruct->options, 0, sizeof(IP_OPTION_INFORMATION));
+    contextStruct->options.Ttl = ttl;
 
-    DWORD dwRetVal;
-    if (contextStruct->protocol == QAbstractSocket::IPv4Protocol)
-    {
-        QueryPerformanceCounter(&contextStruct->startTime);
-        dwRetVal = IcmpSendEcho2(this->hICMPv4File,
-                                 NULL,
-                                 (FARPROC)receiveProxy,
-                                 contextStruct,
-                                 (IPAddr)contextStruct->addressIPv4,
-                                 contextStruct->sendData,
-                                 PINGER_PING_SIZE,
-                                 &options,
-                                 contextStruct->replyBuffer,
-                                 sizeof(ICMP_ECHO_REPLY)+PINGER_PING_SIZE,
-                                 timeout);
-    }
-    else if (contextStruct->protocol == QAbstractSocket::IPv6Protocol)
-    {
-        QueryPerformanceCounter(&contextStruct->startTime);
-        dwRetVal = Icmp6SendEcho2(this->hICMPv6File,
-                                  NULL,
-                                  (FARPROC)receiveProxy,
-                                  contextStruct,
-                                  &this->sourceAddressIPv6,
-                                  &contextStruct->addressIPv6,
-                                  contextStruct->sendData,
-                                  PINGER_PING_SIZE,
-                                  &options,
-                                  contextStruct->replyBuffer,
-                                  sizeof(ICMPV6_ECHO_REPLY)+PINGER_PING_SIZE,
-                                  timeout);
-    }
+    //start worker
+    this->workerPool->start(new PingerWorker(contextStruct));
 
-    return true;
+    return contextStruct;
 }
 
 void Pinger::receiveReply(PingContext* contextStruct)
@@ -165,6 +145,8 @@ void Pinger::receiveReply(PingContext* contextStruct)
             contextStruct->millisLatencyLowResolution = pEchoReply->RoundTripTime;
             contextStruct->millisLatencyHighResolution = (double) (contextStruct->endTime.QuadPart - contextStruct->startTime.QuadPart) * 1000.0 / (double) this->performanceFrequency.QuadPart;
         }
+        else if (pEchoReply->Status == IP_REQ_TIMED_OUT)
+            contextStruct->replyStatus = PINGER_STATUS_TIMEOUT;
         else if (pEchoReply->Status == IP_TTL_EXPIRED_TRANSIT)
             contextStruct->replyStatus = PINGER_STATUS_EXPIREDINTRANSIT;
         else
@@ -186,14 +168,17 @@ void Pinger::receiveReply(PingContext* contextStruct)
             contextStruct->millisLatencyLowResolution = pEchoReply->RoundTripTime;
             contextStruct->millisLatencyHighResolution = (double) (contextStruct->endTime.QuadPart - contextStruct->startTime.QuadPart) * 1000.0 / (double) this->performanceFrequency.QuadPart;
         }
+        else if (pEchoReply->Status == IP_REQ_TIMED_OUT)
+            contextStruct->replyStatus = PINGER_STATUS_TIMEOUT;
         else if (pEchoReply->Status == IP_TTL_EXPIRED_TRANSIT)
             contextStruct->replyStatus = PINGER_STATUS_EXPIREDINTRANSIT;
         else
             contextStruct->replyStatus = PINGER_STATUS_ERROR;
     }
 
-     //callback listener
-    ((IPingReplyListener*)contextStruct->listener)->receivePingReply(contextStruct);
+    //callback listener
+    if (contextStruct->listener != NULL)
+        ((IPingReplyListener*)contextStruct->listener)->receivePingReply(contextStruct);
 
     //free memory
     free(contextStruct->replyBuffer);
@@ -201,8 +186,46 @@ void Pinger::receiveReply(PingContext* contextStruct)
     delete contextStruct;
 }
 
-void NTAPI receiveProxy(PVOID contextStruct)
+PingerWorker::PingerWorker(PingContext* contextStruct)
 {
-    QueryPerformanceCounter(&((PingContext*)contextStruct)->endTime);
+    this->contextStruct = contextStruct;
+}
+
+void PingerWorker::run()
+{
+    if (contextStruct->protocol == QAbstractSocket::IPv4Protocol)
+    {
+        QueryPerformanceCounter(&this->contextStruct->startTime);
+        IcmpSendEcho2(*this->contextStruct->hICMPv4File,
+                      NULL,
+                      NULL,
+                      this->contextStruct,
+                      (IPAddr)contextStruct->addressIPv4,
+                      this->contextStruct->sendData,
+                      PINGER_PING_SIZE,
+                      &this->contextStruct->options,
+                      this->contextStruct->replyBuffer,
+                      sizeof(ICMP_ECHO_REPLY)+PINGER_PING_SIZE,
+                      this->contextStruct->timeout);
+        QueryPerformanceCounter(&this->contextStruct->endTime);
+    }
+    else if (contextStruct->protocol == QAbstractSocket::IPv6Protocol)
+    {
+        QueryPerformanceCounter(&this->contextStruct->startTime);
+        Icmp6SendEcho2(*this->contextStruct->hICMPv6File,
+                       NULL,
+                       NULL,
+                       this->contextStruct,
+                       this->contextStruct->sourceAddressIPv6,
+                       &this->contextStruct->addressIPv6,
+                       this->contextStruct->sendData,
+                       PINGER_PING_SIZE,
+                       &this->contextStruct->options,
+                       this->contextStruct->replyBuffer,
+                       sizeof(ICMPV6_ECHO_REPLY)+PINGER_PING_SIZE,
+                       this->contextStruct->timeout);
+        QueryPerformanceCounter(&this->contextStruct->endTime);
+    }
+
     Pinger::Instance()->receiveReply((PingContext*)contextStruct);
 }

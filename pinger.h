@@ -4,10 +4,7 @@
 #include <QMutex>
 #include <QThread>
 #include <QHostAddress>
-
-#ifdef QT_DEBUG
-#include <QDebug>
-#endif
+#include <QThreadPool>
 
 #include <Ws2tcpip.h>
 #include <Iphlpapi.h>
@@ -17,14 +14,20 @@
 #pragma comment(lib, "ws2_32.lib")
 
 #define PINGER_PING_SIZE 32
-#define PINGER_PING_TIMEOUT 1000
+#define PINGER_PING_TIMEOUT 3000
 #define PINGER_PING_TTL 255
 
 #define PINGER_STATUS_SUCCESS 0
 #define PINGER_STATUS_ERROR 1
-#define PINGER_STATUS_EXPIREDINTRANSIT 2
+#define PINGER_STATUS_TIMEOUT 2
+#define PINGER_STATUS_EXPIREDINTRANSIT 3
 
 struct PingContext {
+    HANDLE* hICMPv4File;
+    HANDLE* hICMPv6File;
+    struct sockaddr_in6* sourceAddressIPv6;
+
+    QHostAddress requestAddress;
     PVOID listener;
     IPAddr addressIPv4;
     sockaddr_in6 addressIPv6;
@@ -32,12 +35,14 @@ struct PingContext {
     LARGE_INTEGER endTime;
     char* sendData;
     char* replyBuffer;
+    IP_OPTION_INFORMATION options;
+    int timeout;
 
     QAbstractSocket::NetworkLayerProtocol protocol;
     int sequence;
     int replyStatus;
     QHostAddress replyAddress;
-    unsigned long millisLatencyLowResolution;
+    long millisLatencyLowResolution;
     double millisLatencyHighResolution;
 };
 
@@ -47,14 +52,14 @@ class IPingReplyListener
         virtual void receivePingReply(PingContext* context) = 0;
 };
 
-class Pinger
+class Pinger : QObject
 {
 public:
     static Pinger* Instance();
     bool supportIPv4();
     bool supportIPv6();
-    bool ping(QHostAddress address, IPingReplyListener* listener);
-    bool ping(QHostAddress address, IPingReplyListener* listener, int sequence, int ttl, int timeout);
+    PingContext* ping(QHostAddress address, IPingReplyListener* listener);
+    PingContext* ping(QHostAddress address, IPingReplyListener* listener, int sequence, int ttl, int timeout);
     void receiveReply(PingContext* contextStruct);
 
     bool PingTest(char* hostaddress);
@@ -68,8 +73,17 @@ private:
     QHash<QString, int> pendingPings;
     struct sockaddr_in6 sourceAddressIPv6;
     LARGE_INTEGER performanceFrequency;
+    QThreadPool* workerPool;
 };
 
-void NTAPI receiveProxy(PVOID param);
+class PingerWorker : public QRunnable
+{
+public:
+    PingerWorker(PingContext* contextStruct);
+    void run();
+
+private:
+    PingContext* contextStruct;
+};
 
 #endif // PINGER_H
