@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql network
+QT       += core gui sql network printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -20,7 +20,9 @@ SOURCES += main.cpp\
     dragablesqlquerymodel.cpp \
     toolslistwidget.cpp \
     hoststreeview.cpp \
-    pinger.cpp
+    pinger.cpp \
+    pingstatistics.cpp \
+    qcustomplot/qcustomplot.cpp
 
 HEADERS  += mainwindow.h \
     localdata.h \
@@ -29,7 +31,9 @@ HEADERS  += mainwindow.h \
     dragablesqlquerymodel.h \
     toolslistwidget.h \
     hoststreeview.h \
-    pinger.h
+    pinger.h \
+    pingstatistics.h \
+    qcustomplot/qcustomplot.h
 
 FORMS    += mainwindow.ui \
     hosteditor.ui \
@@ -37,3 +41,7 @@ FORMS    += mainwindow.ui \
 
 RESOURCES += \
     MainResources.qrc
+
+VERSION = 0.1.0
+DEFINES += APPLICATION_NAME=\\\"QuickMon\\\"
+DEFINES += APPLICATION_VERSION=\\\"0.1.0\\\"
