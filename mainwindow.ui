@@ -20,7 +20,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>QickMon</string>
+   <string>QuickMon</string>
   </property>
   <property name="windowIcon">
    <iconset resource="MainResources.qrc">
