@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql network printsupport
+QT       += core gui sql network printsupport xml svg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -52,3 +52,10 @@ QMAKE_TARGET_COPYRIGHT = "Copyright (c) 2015 Renato A. Ferreira"
 QMAKE_TARGET_PRODUCT = "QuickMon"
 
 win32:RC_ICONS = quickmon.ico
+
+Release:CONFIG += static
+
+win32:QMAKE_CFLAGS_RELEASE += /MT
+win32:QMAKE_CXXFLAGS_RELEASE += /MT
+win32:QMAKE_CFLAGS_RELEASE -= -MD
+win32:QMAKE_CXXFLAGS_RELEASE -= -MD
