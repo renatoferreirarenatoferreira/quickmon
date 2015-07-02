@@ -143,7 +143,7 @@ bool LocalData::executeQuery(QSqlQuery & queryObj)
         return false;
     }
 #else
-    return queryObj.exec(query);
+    return queryObj.exec();
 #endif
 }
 
