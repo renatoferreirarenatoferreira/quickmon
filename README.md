@@ -12,7 +12,7 @@ The main window is divided in two parts:
 
 ![alt tag](https://raw.githubusercontent.com/renatoferreirarenatoferreira/quickmon/master/docs/mainwindow.png)
 
-* **Host List**: The host list is located on top of the window and permits to create, edit and remove hosts. Each host used in the tools must be added in the host list.
+* **Hosts list**: The host list is located on top of the window and permits to create, edit and remove hosts. Each host used in the tools must be added in the host list.
 * **Tools list**: On bottom of screen is located the list of tools. Each click in a tool icon opens a new tool window.
 
 To initialize the tool just drag a host from the host list and drop over the tool window. Here is a screenshot of a working ping tool:
