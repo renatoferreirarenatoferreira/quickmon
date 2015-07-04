@@ -6,8 +6,8 @@
 #include <QMimeData>
 #include <QHostInfo>
 
-#include "hoststreeview.h"
-#include "pinger.h"
+#include "../hoststreeview.h"
+#include "../Net/pinger.h"
 #include "pingstatistics.h"
 
 #define JITTER_PERCENT_YELLOW 15

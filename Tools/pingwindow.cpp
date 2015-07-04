@@ -83,7 +83,7 @@ void PingWindow::run(int hostID)
         {
             latencyCalculator.reset();
             this->waitingForReply = true;
-            this->pigingContext = Pinger::Instance()->ping(this->pingingAddress, this);
+            this->pigingContext = this->pingerInstance->ping(this->pingingAddress, this);
             this->asyncWorker->start(1000);
             this->setWindowTitle("Pinging " + query.value("address").toString());
         } else {
@@ -108,7 +108,7 @@ void PingWindow::lookupHostReply(QHostInfo hostInfo)
         {
             latencyCalculator.reset();
             this->waitingForReply = true;
-            this->pigingContext = Pinger::Instance()->ping(this->pingingAddress, this);
+            this->pigingContext = this->pingerInstance->ping(this->pingingAddress, this);
             this->asyncWorker->start(1000);
         }
     } else {
@@ -134,7 +134,7 @@ void PingWindow::receivePingReply(PingContext* context)
     //retry immetdiatelly if this reply took too long to arrive
     if (this->retryImmediatelly)
     {
-        this->pigingContext = Pinger::Instance()->ping(this->pingingAddress, this);
+        this->pigingContext = this->pingerInstance->ping(this->pingingAddress, this);
         this->retryImmediatelly = false;
     } else {
         this->waitingForReply = false;
@@ -154,7 +154,7 @@ void PingWindow::asyncTask()
     if (!this->waitingForReply && !this->retryImmediatelly)
     {
         this->waitingForReply = true;
-        this->pigingContext = Pinger::Instance()->ping(this->pingingAddress, this);
+        this->pigingContext = this->pingerInstance->ping(this->pingingAddress, this);
     } else {
         this->retryImmediatelly = true;
     }

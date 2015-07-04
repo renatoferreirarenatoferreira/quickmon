@@ -16,28 +16,28 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     localdata.cpp \
     hosteditor.cpp \
-    pingwindow.cpp \
+    Tools/pingwindow.cpp \
     dragablesqlquerymodel.cpp \
     toolslistwidget.cpp \
     hoststreeview.cpp \
-    pinger.cpp \
-    pingstatistics.cpp \
-    qcustomplot/qcustomplot.cpp
+    Net/pinger.cpp \
+    Tools/pingstatistics.cpp \
+    qcustomplot/qcustomplot.cpp \
 
 HEADERS  += mainwindow.h \
     localdata.h \
     hosteditor.h \
-    pingwindow.h \
+    Tools/pingwindow.h \
     dragablesqlquerymodel.h \
     toolslistwidget.h \
     hoststreeview.h \
-    pinger.h \
-    pingstatistics.h \
-    qcustomplot/qcustomplot.h
+    Net/pinger.h \
+    Tools/pingstatistics.h \
+    qcustomplot/qcustomplot.h \
 
 FORMS    += mainwindow.ui \
     hosteditor.ui \
-    pingwindow.ui
+    Tools/pingwindow.ui \
 
 RESOURCES += \
     MainResources.qrc
