@@ -5,6 +5,7 @@
 #include <QThread>
 #include <QHostAddress>
 #include <QThreadPool>
+#include <QMutex>
 
 #include <Ws2tcpip.h>
 #include <Iphlpapi.h>
@@ -37,6 +38,7 @@ struct PingContext {
     char* replyBuffer;
     IP_OPTION_INFORMATION options;
     int timeout;
+    QMutex* mutex;
 
     QAbstractSocket::NetworkLayerProtocol protocol;
     int sequence;
@@ -63,6 +65,7 @@ public:
     void receiveReply(PingContext* contextStruct);
 
     bool PingTest(char* hostaddress);
+    static void stopListening(PingContext* contextStruct);
 
 private:
     static Pinger* m_Instance;

@@ -69,6 +69,7 @@ PingContext* Pinger::ping(QHostAddress address, IPingReplyListener* listener, in
     contextStruct->sequence = sequence;
     contextStruct->timeout = timeout;
     contextStruct->protocol = address.protocol();
+    contextStruct->mutex = new QMutex(QMutex::Recursive);
     //copy shared handles and references
     contextStruct->hICMPv4File = &this->hICMPv4File;
     contextStruct->hICMPv6File = &this->hICMPv6File;
@@ -178,13 +179,25 @@ void Pinger::receiveReply(PingContext* contextStruct)
     }
 
     //callback listener
+    contextStruct->mutex->lock();
     if (contextStruct->listener != NULL)
         ((IPingReplyListener*)contextStruct->listener)->receivePingReply(contextStruct);
+    contextStruct->listener = NULL;
+    contextStruct->mutex->unlock();
 
     //free memory
     free(contextStruct->replyBuffer);
     free(contextStruct->sendData);
+    delete contextStruct->mutex;
     delete contextStruct;
+}
+
+void Pinger::stopListening(PingContext* contextStruct)
+{
+    contextStruct->mutex->lock();
+    if (contextStruct->listener != NULL)
+        contextStruct->listener = NULL;
+    contextStruct->mutex->unlock();
 }
 
 PingerWorker::PingerWorker(PingContext* contextStruct)
