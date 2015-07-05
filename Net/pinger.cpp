@@ -15,6 +15,7 @@ Pinger::Pinger()
     this->sourceAddressIPv6.sin6_port = 0;
 
     this->workerPool = new QThreadPool(this);
+    this->workerPool->setMaxThreadCount(10);
 }
 
 Pinger::~Pinger()
