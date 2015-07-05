@@ -41,7 +41,6 @@ struct PingContext {
     QMutex* mutex;
 
     QAbstractSocket::NetworkLayerProtocol protocol;
-    int sequence;
     int replyStatus;
     QHostAddress replyAddress;
     long millisLatencyLowResolution;
@@ -61,10 +60,9 @@ public:
     bool supportIPv4();
     bool supportIPv6();
     PingContext* ping(QHostAddress address, IPingReplyListener* listener);
-    PingContext* ping(QHostAddress address, IPingReplyListener* listener, int sequence, int ttl, int timeout);
+    PingContext* ping(QHostAddress address, IPingReplyListener* listener, int ttl);
+    PingContext* ping(QHostAddress address, IPingReplyListener* listener, int ttl, int timeout);
     void receiveReply(PingContext* contextStruct);
-
-    bool PingTest(char* hostaddress);
     static void stopListening(PingContext* contextStruct);
 
 private:

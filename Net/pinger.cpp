@@ -57,16 +57,20 @@ bool Pinger::supportIPv6()
 
 PingContext* Pinger::ping(QHostAddress address, IPingReplyListener* listener)
 {
-    return this->ping(address, listener, 0, PINGER_PING_TTL, PINGER_PING_TIMEOUT);
+    return this->ping(address, listener, PINGER_PING_TTL, PINGER_PING_TIMEOUT);
 }
 
-PingContext* Pinger::ping(QHostAddress address, IPingReplyListener* listener, int sequence, int ttl, int timeout)
+PingContext* Pinger::ping(QHostAddress address, IPingReplyListener* listener, int ttl)
+{
+    return this->ping(address, listener, ttl, PINGER_PING_TIMEOUT);
+}
+
+PingContext* Pinger::ping(QHostAddress address, IPingReplyListener* listener, int ttl, int timeout)
 {
     //start data structure
     PingContext* contextStruct = new PingContext();
     contextStruct->requestAddress = address;
     contextStruct->listener = (PVOID)listener;
-    contextStruct->sequence = sequence;
     contextStruct->timeout = timeout;
     contextStruct->protocol = address.protocol();
     contextStruct->mutex = new QMutex(QMutex::Recursive);
@@ -130,15 +134,18 @@ PingContext* Pinger::ping(QHostAddress address, IPingReplyListener* listener, in
 
 void Pinger::receiveReply(PingContext* contextStruct)
 {
-     if (contextStruct->protocol == QAbstractSocket::IPv4Protocol)
+    if (contextStruct->protocol == QAbstractSocket::IPv4Protocol)
     {
         //get reply data
         PICMP_ECHO_REPLY pEchoReply = (PICMP_ECHO_REPLY) contextStruct->replyBuffer;
         //test status
-        if (pEchoReply->Status == IP_SUCCESS)
+        if (pEchoReply->Status == IP_SUCCESS || pEchoReply->Status == IP_TTL_EXPIRED_TRANSIT)
         {
             //copy status
-            contextStruct->replyStatus = PINGER_STATUS_SUCCESS;
+            if (pEchoReply->Status == IP_SUCCESS)
+                contextStruct->replyStatus = PINGER_STATUS_SUCCESS;
+            else
+                contextStruct->replyStatus = PINGER_STATUS_EXPIREDINTRANSIT;
             //copy address
             char stringAddress[INET_ADDRSTRLEN];
             InetNtopA(AF_INET, &pEchoReply->Address, stringAddress, sizeof(stringAddress));
@@ -149,8 +156,6 @@ void Pinger::receiveReply(PingContext* contextStruct)
         }
         else if (pEchoReply->Status == IP_REQ_TIMED_OUT)
             contextStruct->replyStatus = PINGER_STATUS_TIMEOUT;
-        else if (pEchoReply->Status == IP_TTL_EXPIRED_TRANSIT)
-            contextStruct->replyStatus = PINGER_STATUS_EXPIREDINTRANSIT;
         else
             contextStruct->replyStatus = PINGER_STATUS_ERROR;
     } else if (contextStruct->protocol == QAbstractSocket::IPv6Protocol)
@@ -158,10 +163,13 @@ void Pinger::receiveReply(PingContext* contextStruct)
         //get reply data
         PICMPV6_ECHO_REPLY pEchoReply = (PICMPV6_ECHO_REPLY) contextStruct->replyBuffer;
         //test status
-        if (pEchoReply->Status == IP_SUCCESS)
+        if (pEchoReply->Status == IP_SUCCESS || pEchoReply->Status == IP_TTL_EXPIRED_TRANSIT)
         {
             //copy status
-            contextStruct->replyStatus = PINGER_STATUS_SUCCESS;
+            if (pEchoReply->Status == IP_SUCCESS)
+                contextStruct->replyStatus = PINGER_STATUS_SUCCESS;
+            else
+                contextStruct->replyStatus = PINGER_STATUS_EXPIREDINTRANSIT;
             //copy address
             char stringAddress[INET6_ADDRSTRLEN];
             InetNtopA(AF_INET6, &pEchoReply->Address.sin6_addr, stringAddress, sizeof(stringAddress));
@@ -172,8 +180,6 @@ void Pinger::receiveReply(PingContext* contextStruct)
         }
         else if (pEchoReply->Status == IP_REQ_TIMED_OUT)
             contextStruct->replyStatus = PINGER_STATUS_TIMEOUT;
-        else if (pEchoReply->Status == IP_TTL_EXPIRED_TRANSIT)
-            contextStruct->replyStatus = PINGER_STATUS_EXPIREDINTRANSIT;
         else
             contextStruct->replyStatus = PINGER_STATUS_ERROR;
     }
