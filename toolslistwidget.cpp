@@ -21,6 +21,11 @@ void ToolsListWidget::toolsClicked(QListWidgetItem * toolsItem)
     {
         PingWindow * newPingWindow = new PingWindow();
         newPingWindow->show();
+    }
+    else if (toolsItem->text() == "Traceroute")
+    {
+        TracerouteWindow * newTracerouteWindow = new TracerouteWindow();
+        newTracerouteWindow->show();
     } else {
         QMessageBox::warning(this, "Error", "Tool not ready to use.");
     }

@@ -6,6 +6,7 @@
         <file alias="Edit">MainResources/Icons/Edit.svg</file>
         <file alias="Ping">MainResources/Icons/Ping.svg</file>
         <file alias="Help">MainResources/Icons/Help.svg</file>
+        <file alias="Traceroute">MainResources/Icons/Traceroute.svg</file>
     </qresource>
     <qresource prefix="/Styles">
         <file alias="Main">MainResources/Styles/Main.qss</file>

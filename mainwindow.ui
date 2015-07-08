@@ -128,6 +128,18 @@
              <normaloff>:/Icons/Ping</normaloff>:/Icons/Ping</iconset>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>Traceroute</string>
+           </property>
+           <property name="toolTip">
+            <string>Traceroute</string>
+           </property>
+           <property name="icon">
+            <iconset resource="MainResources.qrc">
+             <normaloff>:/Icons/Traceroute</normaloff>:/Icons/Traceroute</iconset>
+           </property>
+          </item>
          </widget>
         </item>
        </layout>

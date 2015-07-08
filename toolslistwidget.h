@@ -4,7 +4,8 @@
 #include <QListWidget>
 #include <QMessageBox>
 
-#include "pingwindow.h"
+#include "Tools/pingwindow.h"
+#include "Tools/traceroutewindow.h"
 
 class ToolsListWidget : public QListWidget
 {

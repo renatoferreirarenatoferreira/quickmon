@@ -23,6 +23,9 @@ SOURCES += main.cpp\
     Net/pinger.cpp \
     Tools/pingstatistics.cpp \
     qcustomplot/qcustomplot.cpp \
+    Tools/traceroutewindow.cpp \
+    Tools/tracerouteitem.cpp \
+    Tools/tracerouteitemmanager.cpp
 
 HEADERS  += mainwindow.h \
     localdata.h \
@@ -34,10 +37,14 @@ HEADERS  += mainwindow.h \
     Net/pinger.h \
     Tools/pingstatistics.h \
     qcustomplot/qcustomplot.h \
+    Tools/traceroutewindow.h \
+    Tools/tracerouteitem.h \
+    Tools/tracerouteitemmanager.h
 
 FORMS    += mainwindow.ui \
     hosteditor.ui \
     Tools/pingwindow.ui \
+    Tools/traceroutewindow.ui
 
 RESOURCES += \
     MainResources.qrc

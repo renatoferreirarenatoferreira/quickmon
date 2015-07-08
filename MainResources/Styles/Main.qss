@@ -7,20 +7,19 @@
 #listWidget_Tools::item
 {
     border: 2px solid transparent;
-    padding: 5px;
-    width: 60px;
+    width: 65px;
+    height: 55px;
+    padding-top: 3px;
 }
 #listWidget_Tools::item:focus
 {
     border: 2px solid transparent;
     outline: none;
-    padding: 5px;
 }
 #listWidget_Tools::item:hover
 {
     border: 2px grey;
     border-style: outset;
-    padding: 5px;
 }
 
 
