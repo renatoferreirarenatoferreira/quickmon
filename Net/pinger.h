@@ -57,8 +57,6 @@ class Pinger : QObject
 {
 public:
     static Pinger* Instance();
-    bool supportIPv4();
-    bool supportIPv6();
     PingContext* ping(QHostAddress address, IPingReplyListener* listener);
     PingContext* ping(QHostAddress address, IPingReplyListener* listener, int ttl);
     PingContext* ping(QHostAddress address, IPingReplyListener* listener, int ttl, int timeout);
@@ -69,8 +67,6 @@ private:
     static Pinger* m_Instance;
     Pinger();
     ~Pinger();
-    HANDLE hICMPv4File;
-    HANDLE hICMPv6File;
     QHash<QString, int> pendingPings;
     struct sockaddr_in6 sourceAddressIPv6;
     LARGE_INTEGER performanceFrequency;
@@ -81,9 +77,12 @@ class PingerWorker : public QRunnable
 {
 public:
     PingerWorker(PingContext* contextStruct);
+    ~PingerWorker();
     void run();
 
 private:
+    HANDLE hICMPv4File;
+    HANDLE hICMPv6File;
     PingContext* contextStruct;
 };
 

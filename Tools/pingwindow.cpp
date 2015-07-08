@@ -41,7 +41,7 @@ PingWindow::~PingWindow()
 
     //disable callback
     if (this->pigingContext != NULL)
-        this->pigingContext->listener = NULL;
+        Pinger::stopListening(this->pigingContext);
 
     delete ui;
 }

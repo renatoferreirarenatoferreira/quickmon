@@ -4,9 +4,6 @@ Pinger* Pinger::m_Instance = 0;
 
 Pinger::Pinger()
 {
-    this->hICMPv4File = IcmpCreateFile();
-    this->hICMPv6File = Icmp6CreateFile();
-
     QueryPerformanceFrequency(&this->performanceFrequency);
 
     this->sourceAddressIPv6.sin6_addr = in6addr_any;
@@ -20,11 +17,7 @@ Pinger::Pinger()
 
 Pinger::~Pinger()
 {
-    if (this->supportIPv4())
-        IcmpCloseHandle(this->hICMPv4File);
 
-    if (this->supportIPv6())
-        IcmpCloseHandle(this->hICMPv6File);
 }
 
 Pinger* Pinger::Instance()
@@ -43,16 +36,6 @@ Pinger* Pinger::Instance()
     }
 
     return m_Instance;
-}
-
-bool Pinger::supportIPv4()
-{
-    return !(this->hICMPv4File == INVALID_HANDLE_VALUE);
-}
-
-bool Pinger::supportIPv6()
-{
-    return !(this->hICMPv6File == INVALID_HANDLE_VALUE);
 }
 
 PingContext* Pinger::ping(QHostAddress address, IPingReplyListener* listener)
@@ -75,8 +58,6 @@ PingContext* Pinger::ping(QHostAddress address, IPingReplyListener* listener, in
     contextStruct->protocol = address.protocol();
     contextStruct->mutex = new QMutex(QMutex::Recursive);
     //copy shared handles and references
-    contextStruct->hICMPv4File = &this->hICMPv4File;
-    contextStruct->hICMPv6File = &this->hICMPv6File;
     contextStruct->sourceAddressIPv6 = &this->sourceAddressIPv6;
 
     //set buffers
@@ -209,14 +190,28 @@ void Pinger::stopListening(PingContext* contextStruct)
 PingerWorker::PingerWorker(PingContext* contextStruct)
 {
     this->contextStruct = contextStruct;
+    this->hICMPv4File = NULL;
+    this->hICMPv6File = NULL;
+}
+
+PingerWorker::~PingerWorker()
+{
+    if (this->hICMPv4File != NULL)
+        IcmpCloseHandle(this->hICMPv4File);
+
+    if (this->hICMPv6File != NULL)
+        IcmpCloseHandle(this->hICMPv6File);
 }
 
 void PingerWorker::run()
 {
     if (contextStruct->protocol == QAbstractSocket::IPv4Protocol)
     {
+        if (this->hICMPv4File == NULL)
+            this->hICMPv4File = IcmpCreateFile();
+
         QueryPerformanceCounter(&this->contextStruct->startTime);
-        IcmpSendEcho2(*this->contextStruct->hICMPv4File,
+        IcmpSendEcho2(this->hICMPv4File,
                       NULL,
                       NULL,
                       this->contextStruct,
@@ -231,8 +226,11 @@ void PingerWorker::run()
     }
     else if (contextStruct->protocol == QAbstractSocket::IPv6Protocol)
     {
+        if (this->hICMPv6File == NULL)
+            this->hICMPv6File = Icmp6CreateFile();
+
         QueryPerformanceCounter(&this->contextStruct->startTime);
-        Icmp6SendEcho2(*this->contextStruct->hICMPv6File,
+        Icmp6SendEcho2(this->hICMPv6File,
                        NULL,
                        NULL,
                        this->contextStruct,
