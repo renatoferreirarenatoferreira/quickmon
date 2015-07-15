@@ -20,8 +20,8 @@ PingStatistics::~PingStatistics()
 void PingStatistics::reset()
 {
     lastValues.clear();
-    this->totalResponses = 0;
-    this->totalTimeouts = 0;
+    this->_totalResponses = 0;
+    this->_totalTimeouts = 0;
     this->totalCalculatedJitters = 0;
     this->totalLatencyMillisseconds = 0;
     this->totalJitterMillisseconds = 0;
@@ -44,8 +44,8 @@ void PingStatistics::updateStatistics(int response, int timeout, double latency)
         oldest = lastValues.last();
         if (oldest.time < startTime)
         {
-            this->totalResponses -= oldest.responseCount;
-            this->totalTimeouts -= oldest.timeoutCount;
+            this->_totalResponses -= oldest.responseCount;
+            this->_totalTimeouts -= oldest.timeoutCount;
             this->totalCalculatedJitters -= oldest.jitterCalculatedCount;
             this->totalLatencyMillisseconds -= oldest.latencyMillisseconds;
             this->totalJitterMillisseconds -= oldest.jitterMillisseconds;
@@ -75,14 +75,14 @@ void PingStatistics::updateStatistics(int response, int timeout, double latency)
     lastValues.prepend(newest);
 
     //calculate totals
-    this->totalResponses += response;
-    this->totalTimeouts += timeout;
+    this->_totalResponses += response;
+    this->_totalTimeouts += timeout;
     this->totalCalculatedJitters += newest.jitterCalculatedCount;
     this->totalLatencyMillisseconds += latency;
     this->totalJitterMillisseconds += newest.jitterMillisseconds;
     this->_lastLatency = latency;
-    this->_averageLatency = this->totalLatencyMillisseconds / this->totalResponses;
-    this->_percentLoss = (float)(this->totalTimeouts*100)/(this->totalResponses+this->totalTimeouts);
+    this->_averageLatency = this->totalLatencyMillisseconds / this->_totalResponses;
+    this->_percentLoss = (float)(this->_totalTimeouts*100)/(this->_totalResponses+this->_totalTimeouts);
     if (this->totalCalculatedJitters > 0)
     {
         this->_averageJitter = this->totalJitterMillisseconds / this->totalCalculatedJitters;
@@ -99,6 +99,16 @@ void PingStatistics::addResponse(double latency)
 void PingStatistics::addTimeout()
 {
     this->updateStatistics(0, 1, 0);
+}
+
+short PingStatistics::totalResponses()
+{
+    return this->_totalResponses;
+}
+
+short PingStatistics::totalTimeouts()
+{
+    return this->_totalTimeouts;
 }
 
 double PingStatistics::lastLatency()

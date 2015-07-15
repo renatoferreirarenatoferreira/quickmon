@@ -6,6 +6,7 @@
 #include <QMutex>
 #include <QHostInfo>
 #include <QTimer>
+#include <QList>
 
 #include "tracerouteitem.h"
 #include "pingstatistics.h"
@@ -41,7 +42,8 @@ private slots:
 
 private:
     QBoxLayout* container;
-    QHash<QString, TracerouteItemReference*> itemList;
+    QList<TracerouteItemReference*> itemList;
+    QHash<QString, TracerouteItemReference*> itemHash;
     QMutex* mutex;
     Pinger* pingerInstance;
     QTimer* asyncWorker;

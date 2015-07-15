@@ -37,11 +37,10 @@ void TracerouteItemManager::addItem(int replyStatus, int ttl, QString address, d
         replyStatus == PINGER_STATUS_EXPIREDINTRANSIT)
     {
         newItem->widget->setAddress(address);
-        newItem->widget->setRTT(rtt);
-    } else {
+        newItem->widget->setLastRTT(rtt);
+    } else
         newItem->widget->setAddress(TRACEROUTE_TIMEOUT_ADDRESS);
-        newItem->widget->setRTT(TRACEROUTE_TIMEOUT_RTT);
-    }
+
     //add to container
     this->container->addWidget(newItem->widget);
 
@@ -52,18 +51,19 @@ void TracerouteItemManager::addItem(int replyStatus, int ttl, QString address, d
         newItem->waitingForReply = true;
         newItem->pigingContext = this->pingerInstance->ping(newItem->hostAddress, this);
         //prepare statistics calculator
-        newItem->statistics = new PingStatistics(10);
+        newItem->statistics = new PingStatistics(60);
         //reverse resolution
         QHostInfo::lookupHost(address, this, SLOT(lookupHostReply(QHostInfo)));
 
         //start async worker
         if (!this->asyncWorker->isActive())
-            this->asyncWorker->start(1000);
+            this->asyncWorker->start(2000);
     } else
         newItem->waitingForReply = false;
 
     //add to local list
-    this->itemList.insert(address, newItem);
+    this->itemHash.insert(address, newItem);
+    this->itemList.append(newItem);
 
     this->mutex->unlock();
 }
@@ -75,14 +75,12 @@ void TracerouteItemManager::clear()
     this->asyncWorker->stop();
 
     //remove items
-    QHashIterator<QString, TracerouteItemReference*> iterator(this->itemList);
     TracerouteItemReference* nextItem;
-    while (iterator.hasNext()) {
-        iterator.next();
-        nextItem = iterator.value();
+    for (int i = 0; i < this->itemList.size(); ++i) {
+        nextItem = this->itemList.at(i);
         //
         this->container->removeWidget(nextItem->widget);
-                delete nextItem->widget;
+        delete nextItem->widget;
         //
         if (nextItem->validAddress)
         {
@@ -92,6 +90,7 @@ void TracerouteItemManager::clear()
         }
         delete nextItem;
     }
+    this->itemHash.clear();
     this->itemList.clear();
 
     this->mutex->unlock();
@@ -99,26 +98,49 @@ void TracerouteItemManager::clear()
 
 void TracerouteItemManager::lookupHostReply(QHostInfo hostInfo)
 {
-    TracerouteItemReference* item = this->itemList.value(hostInfo.addresses().first().toString());
+    //avoid processing responses from last session
+    if (!this->itemHash.contains(hostInfo.addresses().first().toString()))
+        return;
+
+    TracerouteItemReference* item = this->itemHash.value(hostInfo.addresses().first().toString());
     if (item->address != hostInfo.hostName())
         item->widget->setAddress(hostInfo.hostName() + " (" + item->hostAddress.toString() + ")");
 }
 
 void TracerouteItemManager::receivePingReply(PingContext* context)
 {
-    TracerouteItemReference* item = this->itemList.value(context->requestAddress.toString());
+    //avoid processing responses from last session
+    if (!this->itemHash.contains(context->requestAddress.toString()))
+        return;
 
-    if (context->replyStatus == PINGER_STATUS_SUCCESS)
+    TracerouteItemReference* item = this->itemHash.value(context->requestAddress.toString());
+
+    if (context->replyStatus == PINGER_STATUS_SUCCESS ||
+        context->replyStatus == PINGER_STATUS_EXPIREDINTRANSIT)
         item->statistics->addResponse(context->millisLatencyHighResolution);
     else
         item->statistics->addTimeout();
 
-    if (context->replyStatus == PINGER_STATUS_SUCCESS)
-        qDebug() << "receivePingReply" << item->address << context->millisLatencyHighResolution << "Avg:"<<item->statistics->averageLatency();
+#ifdef QT_DEBUG
+    if (context->replyStatus == PINGER_STATUS_SUCCESS ||
+        context->replyStatus == PINGER_STATUS_EXPIREDINTRANSIT)
+        qDebug() << "Traceroute RTT:" << item->address << context->millisLatencyHighResolution << "Avg:"<<item->statistics->averageLatency();
     else
-        qDebug() << "receivePingReply" << item->address << "TIMEOUT!" << "Avg:"<<item->statistics->averageLatency();
+        qDebug() << "Traceroute RTT:" << item->address << "TIMEOUT!" << "Avg:"<<item->statistics->averageLatency();
+#endif
 
-    item->widget->setRTT(item->statistics->averageLatency());
+    if (context->replyStatus == PINGER_STATUS_SUCCESS ||
+        context->replyStatus == PINGER_STATUS_EXPIREDINTRANSIT)
+        item->widget->setLastRTT(item->statistics->lastLatency());
+
+    if (item->statistics->averageLatency() > 0)
+        item->widget->setAvgRTT(item->statistics->averageLatency());
+
+    if (item->statistics->averageJitter() > 0)
+        item->widget->setJitter(item->statistics->averageJitter(), item->statistics->percentJitter());
+
+    if (item->statistics->totalResponses() > 0)
+        item->widget->setPctLoss(item->statistics->percentLoss());
 
     item->waitingForReply = false;
 }
@@ -127,15 +149,16 @@ void TracerouteItemManager::asyncTask()
 {
     this->mutex->lock();
 
-    QHashIterator<QString, TracerouteItemReference*> iterator(this->itemList);
     TracerouteItemReference* nextItem;
-    while (iterator.hasNext()) {
-        iterator.next();
-        nextItem = iterator.value();
+    for (int i = 0; i < this->itemList.size(); ++i) {
+        nextItem = this->itemList.at(i);
         if (nextItem->validAddress && !nextItem->waitingForReply)
         {
             nextItem->waitingForReply = true;
             nextItem->pigingContext = this->pingerInstance->ping(nextItem->hostAddress, this);
+
+            //create an interval to avoid affecting the response time with the increase of the throughtput
+            Sleep(25);
         }
     }
 

@@ -25,6 +25,8 @@ public:
     void reset();
     void addResponse(double latency);
     void addTimeout();
+    short totalResponses();
+    short totalTimeouts();
     double lastLatency();
     double averageLatency();
     double averageJitter();
@@ -34,8 +36,8 @@ public:
 private:
     int sampleIntervalSeconds;
     QLinkedList<LatencyInformation> lastValues;
-    short totalResponses;
-    short totalTimeouts;
+    short _totalResponses;
+    short _totalTimeouts;
     short totalCalculatedJitters;
     double totalLatencyMillisseconds;
     double totalJitterMillisseconds;

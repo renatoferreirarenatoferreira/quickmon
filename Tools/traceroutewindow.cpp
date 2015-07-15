@@ -22,6 +22,7 @@ TracerouteWindow::TracerouteWindow(QWidget *parent) :
 
     //reset values
     this->resetValues();
+    this->lastHostID = -1;
 }
 
 TracerouteWindow::~TracerouteWindow()
@@ -57,6 +58,12 @@ void TracerouteWindow::dropEvent(QDropEvent* event)
 
 void TracerouteWindow::run(int hostID)
 {
+    //avoid re-running for the same host
+    if (this->lastHostID == hostID)
+        return;
+    else
+        this->lastHostID = hostID;
+
     this->asyncWorker->stop();
     //reset tasks
     this->resetValues();
@@ -121,6 +128,7 @@ void TracerouteWindow::resetValues()
     this->TTL = 1;
     this->running = true;
     this->waitingForReply = false;
+    this->destinationAddress.setAddress("0.0.0.0");
 
     //clear items
     this->itemManager->clear();

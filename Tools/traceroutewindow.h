@@ -43,6 +43,7 @@ private:
     bool waitingForReply;
     int lookupID;
     int running;
+    int lastHostID;
 };
 
 #endif // TRACEROUTEWINDOW_H
