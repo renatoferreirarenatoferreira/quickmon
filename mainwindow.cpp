@@ -36,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     helpButton->setPopupMode(QToolButton::InstantPopup);
     helpButton->setStyleSheet("QToolButton::menu-indicator{ image: url(none.jpg); }");
     helpButton->setIcon(helpIcon);
+    helpButton->setToolTip("Help");
     //help menu to toolbar
     ui->toolBar->addWidget(helpButton);
 }
