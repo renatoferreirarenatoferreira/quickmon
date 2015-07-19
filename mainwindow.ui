@@ -26,6 +26,17 @@
    <iconset resource="MainResources.qrc">
     <normaloff>:/Icons/Search</normaloff>:/Icons/Search</iconset>
   </property>
+  <property name="styleSheet">
+   <string notr="true">#MainWindow
+{
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1c1c1c, stop:1 #c9c9c9)
+}
+#toolBar
+{
+    background: #c9c9c9;
+}
+</string>
+  </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
@@ -98,6 +109,31 @@
         </property>
         <item>
          <widget class="ToolsListWidget" name="listWidget_Tools">
+          <property name="styleSheet">
+           <string notr="true">#tabWidget_Tools::pane {
+    border: 0;
+}
+#listWidget_Tools {
+    outline: none;
+}
+#listWidget_Tools::item
+{
+    border: 2px solid transparent;
+    width: 65px;
+    height: 55px;
+    padding-top: 3px;
+}
+#listWidget_Tools::item:focus
+{
+    border: 2px solid transparent;
+    outline: none;
+}
+#listWidget_Tools::item:hover
+{
+    border: 2px grey;
+    border-style: outset;
+}</string>
+          </property>
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>

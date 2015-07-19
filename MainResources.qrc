@@ -8,7 +8,4 @@
         <file alias="Help">MainResources/Icons/Help.svg</file>
         <file alias="Traceroute">MainResources/Icons/Traceroute.svg</file>
     </qresource>
-    <qresource prefix="/Styles">
-        <file alias="Main">MainResources/Styles/Main.qss</file>
-    </qresource>
 </RCC>
