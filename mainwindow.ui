@@ -59,6 +59,9 @@
     </property>
     <item>
      <widget class="HostsTreeView" name="treeView_Hosts">
+      <property name="styleSheet">
+       <string notr="true">border: none;</string>
+      </property>
       <property name="dragEnabled">
        <bool>true</bool>
       </property>
