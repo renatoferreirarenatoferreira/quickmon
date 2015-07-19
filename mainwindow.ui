@@ -84,6 +84,11 @@
         <height>120</height>
        </size>
       </property>
+      <property name="styleSheet">
+       <string notr="true">#tabWidget_Tools::pane {
+    border: 0;
+}</string>
+      </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
@@ -110,10 +115,7 @@
         <item>
          <widget class="ToolsListWidget" name="listWidget_Tools">
           <property name="styleSheet">
-           <string notr="true">#tabWidget_Tools::pane {
-    border: 0;
-}
-#listWidget_Tools {
+           <string notr="true">#listWidget_Tools {
     outline: none;
 }
 #listWidget_Tools::item
