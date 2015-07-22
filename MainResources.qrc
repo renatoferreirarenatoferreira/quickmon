@@ -7,5 +7,14 @@
         <file alias="Ping">MainResources/Icons/Ping.svg</file>
         <file alias="Help">MainResources/Icons/Help.svg</file>
         <file alias="Traceroute">MainResources/Icons/Traceroute.svg</file>
+        <file alias="SNMPGraph">MainResources/Icons/SNMPGraph.svg</file>
+        <file alias="SNMPList">MainResources/Icons/SNMPList.svg</file>
+        <file alias="SNMPTable">MainResources/Icons/SNMPTable.svg</file>
+        <file alias="FolderClose">MainResources/Icons/FolderClose.svg</file>
+        <file alias="FolderOpen">MainResources/Icons/FolderOpen.svg</file>
+    </qresource>
+    <qresource prefix="/SNMPTemplates">
+        <file alias="List">MainResources/SNMPTemplates/List.json</file>
+        <file alias="StandardMibs">MainResources/SNMPTemplates/StandardMibs.json</file>
     </qresource>
 </RCC>
