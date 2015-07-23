@@ -7,6 +7,10 @@
 #include <QJsonObject>
 #include <QTimer>
 
+#include "Tools/snmplistwindow.h"
+#include "Tools/snmptablewindow.h"
+#include "Tools/snmpgraphwindow.h"
+
 class SNMPDataTreeWidget : public QTreeWidget
 {
     Q_OBJECT

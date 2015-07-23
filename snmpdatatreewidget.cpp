@@ -102,5 +102,20 @@ void SNMPDataTreeWidget::itemDoubleClicked(QTreeWidgetItem* item, int)
     QMap<QString, QVariant> templateItems = this->internalItemsHash.value(item);
     QString templateType = templateItems.value("Type").toString();
 
-    //open tool windows here
+    if (templateType == "Graph")
+    {
+        SNMPGraphWindow* newSNMPGraphWindow = new SNMPGraphWindow();
+        newSNMPGraphWindow->configure(item->text(0), templateItems);
+        newSNMPGraphWindow->show();
+    } else if (templateType == "List")
+    {
+        SNMPListWindow* newSNMPListWindow = new SNMPListWindow();
+        newSNMPListWindow->configure(item->text(0), templateItems);
+        newSNMPListWindow->show();
+    } else if (templateType == "Table")
+    {
+        SNMPTableWindow* newSNMPTableWindow = new SNMPTableWindow();
+        newSNMPTableWindow->configure(item->text(0), templateItems);
+        newSNMPTableWindow->show();
+    }
 }

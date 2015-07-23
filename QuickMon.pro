@@ -25,7 +25,11 @@ SOURCES += main.cpp\
     qcustomplot/qcustomplot.cpp \
     Tools/traceroutewindow.cpp \
     Tools/tracerouteitem.cpp \
-    Tools/tracerouteitemmanager.cpp
+    Tools/tracerouteitemmanager.cpp \
+    snmpdatatreewidget.cpp \
+    Tools/snmplistwindow.cpp \
+    Tools/snmpgraphwindow.cpp \
+    Tools/snmptablewindow.cpp
 
 HEADERS  += mainwindow.h \
     localdata.h \
@@ -39,12 +43,19 @@ HEADERS  += mainwindow.h \
     qcustomplot/qcustomplot.h \
     Tools/traceroutewindow.h \
     Tools/tracerouteitem.h \
-    Tools/tracerouteitemmanager.h
+    Tools/tracerouteitemmanager.h \
+    snmpdatatreewidget.h \
+    Tools/snmplistwindow.h \
+    Tools/snmpgraphwindow.h \
+    Tools/snmptablewindow.h
 
 FORMS    += mainwindow.ui \
     hosteditor.ui \
     Tools/pingwindow.ui \
-    Tools/traceroutewindow.ui
+    Tools/traceroutewindow.ui \
+    Tools/snmplistwindow.ui \
+    Tools/snmpgraphwindow.ui \
+    Tools/snmptablewindow.ui
 
 RESOURCES += \
     MainResources.qrc
