@@ -42,6 +42,7 @@ void HostEditor::addHost()
     addingMode = true;
     setWindowTitle("Add new host");
     updateUI();
+    ui->lineEdit_Name->setFocus();
     show();
 }
 
@@ -80,17 +81,29 @@ void HostEditor::editHost(int hostID)
 
         value = query.value("snmpv3authprotocol").toString();
         if (value == "SHA")
+            ui->comboBox_Authentication->setCurrentIndex(0);
+        else if (value == "MD5")
             ui->comboBox_Authentication->setCurrentIndex(1);
         else
-            ui->comboBox_Authentication->setCurrentIndex(0);
+            ui->comboBox_Authentication->setCurrentIndex(0); //reset to first option
 
         ui->lineEdit_Authentication->setText(query.value("snmpv3authpassphrase").toString());
 
         value = query.value("snmpv3privprotocol").toString();
         if (value == "DES")
-            ui->comboBox_Privacy->setCurrentIndex(1);
-        else
             ui->comboBox_Privacy->setCurrentIndex(0);
+        else if (value == "3DES")
+            ui->comboBox_Privacy->setCurrentIndex(1);
+        else if (value == "IDEA")
+            ui->comboBox_Privacy->setCurrentIndex(2);
+        else if (value == "AES128")
+            ui->comboBox_Privacy->setCurrentIndex(3);
+        else if (value == "AES192")
+            ui->comboBox_Privacy->setCurrentIndex(4);
+        else if (value == "AES256")
+            ui->comboBox_Privacy->setCurrentIndex(5);
+        else
+            ui->comboBox_Privacy->setCurrentIndex(0); //reset to first option
 
         ui->lineEdit_Privacy->setText(query.value("snmpv3privpassphrase").toString());
     }
@@ -99,6 +112,8 @@ void HostEditor::editHost(int hostID)
     editingID = hostID;
     setWindowTitle("Edit host");
     updateUI();
+    ui->lineEdit_Name->setFocus();
+    ui->lineEdit_Name->selectAll();
     show();
 }
 

@@ -227,18 +227,18 @@
        <widget class="QComboBox" name="comboBox_Authentication">
         <property name="minimumSize">
          <size>
-          <width>50</width>
+          <width>70</width>
           <height>0</height>
          </size>
         </property>
         <item>
          <property name="text">
-          <string>MD5</string>
+          <string>SHA</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>SHA</string>
+          <string>MD5</string>
          </property>
         </item>
        </widget>
@@ -261,18 +261,38 @@
        <widget class="QComboBox" name="comboBox_Privacy">
         <property name="minimumSize">
          <size>
-          <width>50</width>
+          <width>70</width>
           <height>0</height>
          </size>
         </property>
         <item>
          <property name="text">
-          <string>AES</string>
+          <string>DES</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>DES</string>
+          <string>3DES</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>IDEA</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>AES128</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>AES192</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>AES256</string>
          </property>
         </item>
        </widget>
