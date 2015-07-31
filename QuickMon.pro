@@ -30,6 +30,7 @@ SOURCES += main.cpp\
     Tools/snmplistwindow.cpp \
     Tools/snmpgraphwindow.cpp \
     Tools/snmptablewindow.cpp
+    Net/snmpclient.cpp \
 
 HEADERS  += mainwindow.h \
     localdata.h \
@@ -48,6 +49,7 @@ HEADERS  += mainwindow.h \
     Tools/snmplistwindow.h \
     Tools/snmpgraphwindow.h \
     Tools/snmptablewindow.h
+    Net/snmpclient.h \
 
 FORMS    += mainwindow.ui \
     hosteditor.ui \
