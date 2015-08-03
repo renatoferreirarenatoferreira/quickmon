@@ -29,8 +29,9 @@ SOURCES += main.cpp\
     snmpdatatreewidget.cpp \
     Tools/snmplistwindow.cpp \
     Tools/snmpgraphwindow.cpp \
-    Tools/snmptablewindow.cpp
+    Tools/snmptablewindow.cpp \
     Net/snmpclient.cpp \
+    Tools/snmplistitem.cpp
 
 HEADERS  += mainwindow.h \
     localdata.h \
@@ -48,8 +49,9 @@ HEADERS  += mainwindow.h \
     snmpdatatreewidget.h \
     Tools/snmplistwindow.h \
     Tools/snmpgraphwindow.h \
-    Tools/snmptablewindow.h
+    Tools/snmptablewindow.h \
     Net/snmpclient.h \
+    Tools/snmplistitem.h
 
 FORMS    += mainwindow.ui \
     hosteditor.ui \
