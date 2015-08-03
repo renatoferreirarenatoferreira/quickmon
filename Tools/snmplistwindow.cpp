@@ -6,11 +6,53 @@ SNMPListWindow::SNMPListWindow(QWidget *parent) :
     ui(new Ui::SNMPListWindow)
 {
     ui->setupUi(this);
+    //window flags
+    this->setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint);
+    this->setAttribute(Qt::WA_DeleteOnClose, true);
+    //drop behavior
+    setAcceptDrops(true);
+
+    //get a client instance
+    this->clientInstance = SNMPClient::Instance();
+
+    //reset values
+    this->resetValues();
+    this->lastHostID = -1;
 }
 
 SNMPListWindow::~SNMPListWindow()
 {
+    //disable callback
+    if (this->waitingForReply)
+        SNMPClient::stopListening(this->SNMPdata);
+
+    //delete items
+    QHashIterator<QString, SNMPListItemReference*> iterator(this->itemHash);
+    while (iterator.hasNext()) {
+        iterator.next();
+        SNMPListItemReference* nextItem = iterator.value();
+        delete nextItem->listItem;
+        delete nextItem;
+    }
+    this->itemHash.clear();
+    this->OIDs.clear();
+
     delete ui;
+}
+
+void SNMPListWindow::dragEnterEvent(QDragEnterEvent* event)
+{
+    if (event->mimeData()->hasText())
+        if (event->mimeData()->text().startsWith(MIMEDATA_PREFIX))
+            event->acceptProposedAction();
+}
+
+void SNMPListWindow::dropEvent(QDropEvent* event)
+{
+    QMetaObject::invokeMethod(this, "run", Qt::QueuedConnection,
+                              Q_ARG(int, event->mimeData()->text().mid(MIMEDATA_PREFIX_LENGTH).toInt()));
+
+    event->acceptProposedAction();
 }
 
 void SNMPListWindow::configure(QString templateName, QMap<QString, QVariant> templateItems)
@@ -19,5 +61,192 @@ void SNMPListWindow::configure(QString templateName, QMap<QString, QVariant> tem
     ui->labelTemplate->setText(templateName);
 
     this->templateName = templateName;
-    this->templateItems = templateItems;
+
+    QMap<QString, QVariant> itemList = templateItems.value("Items").toMap();
+    QMapIterator<QString, QVariant> itemListIterator(itemList);
+    while (itemListIterator.hasNext())
+    {
+        itemListIterator.next();
+
+        QString itemName = itemListIterator.key();
+        QMap<QString, QVariant> itemValues = itemListIterator.value().toMap();
+        QString OID = itemValues.value("OID").toString();
+
+        SNMPListItemReference* newItem = new SNMPListItemReference();
+        newItem->listItem = new SNMPListItem();
+        newItem->listItem->configure(ui->layoutListItems->count(), itemName);
+
+        newItem->valueMapped = itemValues.contains("ValueMappings");
+        if (newItem->valueMapped)
+            this->clientInstance->addMappings(OID, itemValues.value("ValueMappings").toMap());
+
+        ui->layoutListItems->addWidget(newItem->listItem);
+        this->itemHash.insert(OID, newItem);
+        this->OIDs.append(OID);
+    }
+}
+
+void SNMPListWindow::run(int hostID)
+{
+    //avoid re-running for the same host
+    if (this->lastHostID == hostID)
+        return;
+    else
+        this->lastHostID = hostID;
+
+    //reset tasks
+    this->resetValues();
+
+    QSqlQuery query = LocalData::Instance()->createQuery("SELECT * FROM hosts WHERE ID=:ID");
+    query.bindValue(":ID", hostID);
+    LocalData::Instance()->executeQuery(query);
+
+    if (query.next())
+    {
+        ui->labelName->setText(query.value("name").toString());
+        ui->labelAddress->setText(query.value("address").toString());
+
+        //copy snmp data
+        this->destinationSNMPVersion = query.value("snmpversion").toInt();
+        this->destinationSNMPCommunity = query.value("snmpcommunity").toString();
+        this->destinationSNMPv3SecLevel = query.value("snmpv3seclevel").toString();
+        this->destinationSNMPv3AuthProtocol = query.value("snmpv3authprotocol").toString();
+        this->destinationSNMPv3AuthPassPhrase = query.value("snmpv3authpassphrase").toString();
+        this->destinationSNMPv3PrivProtocol = query.value("snmpv3privprotocol").toString();
+        this->destinationSNMPv3PrivPassPhrase = query.value("snmpv3privpassphrase").toString();
+
+        //start immediately if adress is valid IPv4/6
+        this->destinationAddress.setAddress(query.value("address").toString());
+        if (this->destinationAddress.protocol() == QAbstractSocket::IPv4Protocol ||
+            this->destinationAddress.protocol() == QAbstractSocket::IPv6Protocol)
+        {
+            //update title
+            this->setWindowTitle("SNMP List: " + templateName + " " + query.value("address").toString());
+            //collect data
+            this->SNMPdata = this->updateValues();
+            this->waitingForReply = true;
+            this->requestSent = true;
+        }
+
+        //always look up for host name
+        this->lookupID = QHostInfo::lookupHost(query.value("address").toString(), this, SLOT(lookupHostReply(QHostInfo)));
+    }
+}
+
+void SNMPListWindow::lookupHostReply(QHostInfo hostInfo)
+{
+    //avoid lookup overlapping
+    if (this->lookupID != hostInfo.lookupId())
+        return;
+
+    if (!hostInfo.addresses().isEmpty())
+    {
+        //update address label
+        this->destinationAddress = hostInfo.addresses().first();
+        ui->labelAddress->setText(this->destinationAddress.toString()+" ("+hostInfo.hostName()+")");
+        this->setWindowTitle("SNMP List: " + templateName + " " + this->destinationAddress.toString()+" ("+hostInfo.hostName()+")");
+
+        if (!this->requestSent)
+        {
+            this->SNMPdata = this->updateValues();
+            this->waitingForReply = true;
+        }
+    } else {
+        QMessageBox::warning(this, "Hostname lookup", "Address cannot be resolved or is invalid!");
+    }
+}
+
+SNMPData* SNMPListWindow::updateValues()
+{
+    if (this->destinationSNMPVersion == 1 || this->destinationSNMPVersion == 2)
+        return this->clientInstance->SNMPGet(this->destinationSNMPVersion,
+                                             this->destinationAddress,
+                                             this->OIDs,
+                                             this->destinationSNMPCommunity,
+                                             this);
+    else if (this->destinationSNMPVersion == 3)
+        return this->clientInstance->SNMPv3Get(this->destinationAddress,
+                                               this->OIDs,
+                                               this->destinationSNMPv3SecLevel,
+                                               this->destinationSNMPv3AuthProtocol,
+                                               this->destinationSNMPv3AuthPassPhrase,
+                                               this->destinationSNMPv3PrivProtocol,
+                                               this->destinationSNMPv3PrivPassPhrase,
+                                               this);
+    else
+        return NULL;
+}
+
+void SNMPListWindow::resetValues()
+{
+    //disable callback
+    if (this->SNMPdata != NULL)
+        SNMPClient::stopListening(this->SNMPdata);
+
+    //reset values
+    this->waitingForReply = false;
+    this->requestSent = false;
+    this->destinationAddress.setAddress("0.0.0.0");
+
+    //clear items
+    QHashIterator<QString, SNMPListItemReference*> iterator(this->itemHash);
+    while (iterator.hasNext()) {
+        iterator.next();
+        SNMPListItemReference* nextItem = iterator.value();
+        nextItem->listItem->setValue("");
+    }
+    //reset size
+    QTimer::singleShot(50, this, SLOT(shrink()));
+}
+
+void SNMPListWindow::shrink()
+{
+    resize(0, 0);
+}
+
+void SNMPListWindow::receiveSNMPReply(SNMPData* data)
+{
+    //ignore delayed responses
+    if (data->requestAddress != this->destinationAddress)
+        return;
+
+    if (data->responseStatus == SNMP_RESPONSE_SUCCESS)
+    {
+        //update ui
+        QMapIterator<QString, QString> iterator(data->returnValues);
+        while (iterator.hasNext()) {
+            iterator.next();
+
+            SNMPListItemReference* nextItem;
+            if (this->itemHash.contains(iterator.key()))
+            {
+                nextItem = this->itemHash.value(iterator.key());
+                if (nextItem->valueMapped)
+                    nextItem->listItem->setValue(this->clientInstance->mapValue(iterator.key(), iterator.value()));
+                else
+                    nextItem->listItem->setValue(iterator.value());
+            }
+        }
+    } else if (data->responseStatus == SNMP_RESPONSE_TIMEOUT)
+        QMetaObject::invokeMethod(this, "warn", Qt::QueuedConnection, Q_ARG(QString, "SNMP error"),
+                                                                      Q_ARG(QString, "SNMP request timed out!"));
+    else
+        QMetaObject::invokeMethod(this, "warn", Qt::QueuedConnection, Q_ARG(QString, "SNMP error"),
+                                                                      Q_ARG(QString, "Unknown error in SNMP request!"));
+
+    //disable waiting flag
+    this->waitingForReply = false;
+
+#ifdef QT_DEBUG
+    QMapIterator<QString, QString> iterator(data->returnValues);
+    while (iterator.hasNext()) {
+        iterator.next();
+        qDebug() << "OID:" << iterator.key() << "Value:" << iterator.value();
+    }
+#endif
+}
+
+void SNMPListWindow::warn(QString title, QString message)
+{
+    QMessageBox::warning(this, title, message);
 }
