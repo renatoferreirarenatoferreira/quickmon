@@ -36,7 +36,7 @@ private:
     int TTL;
     Pinger* pingerInstance;
     QTimer* asyncWorker;
-    PingContext* pigingContext;
+    PingContext* pigingContext = NULL;
     QHostAddress destinationAddress;
     void resetValues();
     TracerouteItemManager* itemManager;

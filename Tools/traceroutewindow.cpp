@@ -125,6 +125,11 @@ void TracerouteWindow::lookupHostReply(QHostInfo hostInfo)
 
 void TracerouteWindow::resetValues()
 {
+    //disable callback
+    if (this->waitingForReply && this->pigingContext != NULL)
+        Pinger::stopListening(this->pigingContext);
+
+    //reset values
     this->TTL = 1;
     this->running = true;
     this->waitingForReply = false;
