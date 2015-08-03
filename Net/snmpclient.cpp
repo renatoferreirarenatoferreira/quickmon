@@ -98,8 +98,9 @@ SNMPData* SNMPClient::prepareData(int version,
 {
     SNMPData* returnData = new SNMPData();
     returnData->listener = (PVOID)listener;
-    returnData->returnCount = 0;
     returnData->OIDs = OIDs;
+    returnData->requestAddress = address;
+    returnData->mutex = new QMutex(QMutex::Recursive);
 
     //set version parameter
     if (version == 1)
@@ -138,7 +139,7 @@ SNMPData* SNMPClient::prepareData(int version,
         //configure community based authentication
         returnData->communityTarget->set_version(returnData->version);
         returnData->communityTarget->set_retry(SNMPCLIENT_RETRIES);
-        returnData->communityTarget->set_timeout(SNMPCLIENT_TIMEOUT);
+        returnData->communityTarget->set_timeout(SNMPCLIENT_MILLISECONDSTIMEOUT/10);
         returnData->communityTarget->set_readcommunity(returnData->community);
 
         returnData->target = returnData->communityTarget;
@@ -196,7 +197,7 @@ SNMPData* SNMPClient::prepareData(int version,
         //configure target
         returnData->userTarget->set_version(returnData->version);
         returnData->userTarget->set_retry(SNMPCLIENT_RETRIES);
-        returnData->userTarget->set_timeout(SNMPCLIENT_TIMEOUT);
+        returnData->userTarget->set_timeout(SNMPCLIENT_MILLISECONDSTIMEOUT/10);
         returnData->userTarget->set_security_model(SNMP_SECURITY_MODEL_USM);
         returnData->userTarget->set_security_name(returnData->securityName);
 
@@ -211,43 +212,49 @@ SNMPData* SNMPClient::prepareData(int version,
     return returnData;
 }
 
-void SNMPClient::SNMPGet(int version,
-                         QHostAddress address,
-                         QStringList OIDs,
-                         QString community,
-                         ISNMPReplyListener* listener)
+SNMPData* SNMPClient::SNMPGet(int version,
+                              QHostAddress address,
+                              QStringList OIDs,
+                              QString community,
+                              ISNMPReplyListener* listener)
 {
     SNMPData* data = this->prepareData(version, address, OIDs, community, NULL, NULL, NULL, NULL, NULL, listener);
-    data->queryType = SNMPCLIENT_QUERYTYPE_GET;
 
     if (data->address->get_ip_version() == Address::version_ipv4)
         this->SNMPv4->get(data->pdu, *data->target, callback, data);
     else if (data->address->get_ip_version() == Address::version_ipv6)
         this->SNMPv6->get(data->pdu, *data->target, callback, data);
+
+    return data;
 }
 
-void SNMPClient::SNMPv3Get(QHostAddress address,
-                           QStringList OIDs,
-                           QString v3SecLevel,
-                           QString v3AuthProtocol,
-                           QString v3AuthPassPhrase,
-                           QString v3PrivProtocol,
-                           QString v3PrivPassPhrase,
-                           ISNMPReplyListener* listener)
+SNMPData* SNMPClient::SNMPv3Get(QHostAddress address,
+                                QStringList OIDs,
+                                QString v3SecLevel,
+                                QString v3AuthProtocol,
+                                QString v3AuthPassPhrase,
+                                QString v3PrivProtocol,
+                                QString v3PrivPassPhrase,
+                                ISNMPReplyListener* listener)
 {
     SNMPData* data = this->prepareData(3, address, OIDs, NULL, v3SecLevel, v3AuthProtocol, v3AuthPassPhrase, v3PrivProtocol, v3PrivPassPhrase, listener);
-    data->queryType = SNMPCLIENT_QUERYTYPE_GET;
 
     if (data->address->get_ip_version() == Address::version_ipv4)
         this->SNMPv4->get(data->pdu, *data->target, callback, data);
     else if (data->address->get_ip_version() == Address::version_ipv6)
         this->SNMPv6->get(data->pdu, *data->target, callback, data);
+
+    return data;
 }
 
 void SNMPClient::receiveReply(SNMPData* data)
 {
-    //callback
-    ((ISNMPReplyListener*)data->listener)->receiveSNMPReply(data);
+    //callback listener
+    data->mutex->lock();
+    if (data->listener != NULL)
+        ((ISNMPReplyListener*)data->listener)->receiveSNMPReply(data);
+    data->listener = NULL;
+    data->mutex->unlock();
 
     //clear data
     if (data->version == version1 || data->version == version2c)
@@ -255,24 +262,38 @@ void SNMPClient::receiveReply(SNMPData* data)
     else if (data->version == version3)
         delete data->userTarget;
     delete data->address;
+    delete data->mutex;
     delete data;
+}
+
+void SNMPClient::stopListening(SNMPData* data)
+{
+    data->mutex->lock();
+    if (data->listener != NULL)
+        data->listener = NULL;
+    data->mutex->unlock();
 }
 
 void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
 {
     SNMPData* data = (SNMPData*) cd;
 
-    Vb nextVar;
-    for ( int i=0; i<pdu.get_vb_count(); i++)
+    if (reason == SNMP_CLASS_ASYNC_RESPONSE)
     {
-        pdu.get_vb(nextVar,i);
+        data->responseStatus = SNMP_RESPONSE_SUCCESS;
 
-        if (nextVar.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW)
+        Vb nextVar;
+        for ( int i=0; i<pdu.get_vb_count(); i++)
         {
-            data->returnValues.insert(nextVar.get_printable_oid(), nextVar.get_printable_value());
-            data->returnCount++;
+            pdu.get_vb(nextVar,i);
+
+            if (nextVar.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW)
+                data->returnValues.insert(nextVar.get_printable_oid(), nextVar.get_printable_value());
         }
-    }
+    } else if (reason == SNMP_CLASS_TIMEOUT)
+        data->responseStatus = SNMP_RESPONSE_TIMEOUT;
+    else
+        data->responseStatus = SNMP_RESPONSE_ERROR;
 
     SNMPClient::Instance()->receiveReply(data);
 }
