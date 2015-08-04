@@ -46,7 +46,7 @@ private:
     Ui::PingWindow* ui;
     Pinger* pingerInstance;
     QTimer* asyncWorker;
-    PingContext* pigingContext;
+    PingContext* pigingContext = NULL;
     QHostAddress pingingAddress;
     PingStatistics latencyCalculator;
     bool waitingForReply;
