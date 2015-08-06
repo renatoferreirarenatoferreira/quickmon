@@ -62,6 +62,8 @@ void SNMPListWindow::configure(QString templateName, QMap<QString, QVariant> tem
 
     this->templateName = templateName;
 
+    QMap<int, SNMPListItem*> orderedList;
+
     QMap<QString, QVariant> itemList = templateItems.value("Items").toMap();
     QMapIterator<QString, QVariant> itemListIterator(itemList);
     while (itemListIterator.hasNext())
@@ -71,18 +73,26 @@ void SNMPListWindow::configure(QString templateName, QMap<QString, QVariant> tem
         QString itemName = itemListIterator.key();
         QMap<QString, QVariant> itemValues = itemListIterator.value().toMap();
         QString OID = itemValues.value("OID").toString();
+        int itemOrder = itemValues.value("Order").toInt();
 
         SNMPListItemReference* newItem = new SNMPListItemReference();
         newItem->listItem = new SNMPListItem();
-        newItem->listItem->configure(ui->layoutListItems->count(), itemName);
+        newItem->listItem->configure(orderedList.size(), itemName);
 
         newItem->valueMapped = itemValues.contains("ValueMappings");
         if (newItem->valueMapped)
             this->clientInstance->addMappings(OID, itemValues.value("ValueMappings").toMap());
 
-        ui->layoutListItems->addWidget(newItem->listItem);
+        orderedList.insert(itemOrder, newItem->listItem);
         this->itemHash.insert(OID, newItem);
         this->OIDs.append(OID);
+    }
+
+    //add items using the configured order
+    QMapIterator<int, SNMPListItem*> iterator(orderedList);
+    while (iterator.hasNext()) {
+        iterator.next();
+        ui->layoutListItems->addWidget(iterator.value());
     }
 }
 
