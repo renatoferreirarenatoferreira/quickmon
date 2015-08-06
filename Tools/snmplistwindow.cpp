@@ -180,7 +180,7 @@ SNMPData* SNMPListWindow::updateValues()
 void SNMPListWindow::resetValues()
 {
     //disable callback
-    if (this->SNMPdata != NULL)
+    if (this->waitingForReply && this->SNMPdata != NULL)
         SNMPClient::stopListening(this->SNMPdata);
 
     //reset values
