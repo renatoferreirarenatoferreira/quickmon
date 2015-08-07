@@ -1,6 +1,7 @@
 {
     "System": {
         "Type": "List",
+        "Order": 0,
         "Items": {
             "sysDescr": {
                 "OID": "1.3.6.1.2.1.1.1.0",

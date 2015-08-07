@@ -59,6 +59,9 @@ void SNMPDataTreeWidget::loadTemplates()
         topLevelItem->setIcon(0, this->closeIcon);
         this->topLevelItems.append(topLevelItem);
 
+        //ordered list/map
+        QMap<int, QTreeWidgetItem*> internalOrderedList;
+
         //add aditional files
         QFile templateFile(templateListIterator.value().toString());
         if (!templateFile.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -73,13 +76,15 @@ void SNMPDataTreeWidget::loadTemplates()
             QString templateName = templateIterator.key();
             QMap<QString, QVariant> templateItems = templateIterator.value().toMap();
             QString templateType = templateItems.value("Type").toString();
+            int internalItemOrder = templateItems.value("Order").toInt();
 
             //add main top level item
             QTreeWidgetItem* internalItem = new QTreeWidgetItem();
             internalItem->setText(0, templateName);
-            topLevelItem->addChild(internalItem);
             this->internalItems.append(internalItem);
             this->internalItemsHash.insert(internalItem, templateItems);
+            //add items in order
+            internalOrderedList.insert(internalItemOrder, internalItem);
 
             //select icon
             if (templateType == "List")
@@ -88,6 +93,13 @@ void SNMPDataTreeWidget::loadTemplates()
                 internalItem->setIcon(0, this->tableIcon);
             else if (templateType == "Graph")
                 internalItem->setIcon(0, this->graphIcon);
+        }
+
+        //add items using the configured order
+        QMapIterator<int, QTreeWidgetItem*> iterator(internalOrderedList);
+        while (iterator.hasNext()) {
+            iterator.next();
+            topLevelItem->addChild(iterator.value());
         }
     }
 
