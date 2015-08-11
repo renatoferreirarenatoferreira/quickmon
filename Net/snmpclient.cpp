@@ -283,6 +283,7 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
         data->responseStatus = SNMP_RESPONSE_SUCCESS;
 
         Vb nextVar;
+        OctetStr octetString;
         for ( int i=0; i<pdu.get_vb_count(); i++)
         {
             pdu.get_vb(nextVar,i);
