@@ -21,6 +21,7 @@ using namespace Snmp_pp;
 #define SNMPCLIENT_RETRIES 1
 #define SNMPCLIENT_QUERYTYPE_GET 0
 #define SNMPCLIENT_QUERYTYPE_WALK 1
+#define SNMPCLIENT_BULK_MAXREPETITIONS 10
 
 #pragma comment(lib, "SNMP++.lib")
 #pragma comment(lib, "libdes.lib")
@@ -38,6 +39,8 @@ struct SNMPData {
     QStringList OIDs;
     QHostAddress requestAddress;
     QMutex* mutex;
+    int queryType;
+    Oid lastOID;
 
     //v1 and v2c data
     CTarget* communityTarget;
@@ -88,8 +91,23 @@ public:
                         QString v3PrivProtocol,
                         QString v3PrivPassPhrase,
                         ISNMPReplyListener* listener);
+    SNMPData* SNMPWalk(int version,
+                       QHostAddress address,
+                       QString OID,
+                       QString community,
+                       ISNMPReplyListener* listener);
+    SNMPData* SNMPv3Walk(QHostAddress address,
+                         QString OID,
+                         QString v3SecLevel,
+                         QString v3AuthProtocol,
+                         QString v3AuthPassPhrase,
+                         QString v3PrivProtocol,
+                         QString v3PrivPassPhrase,
+                         ISNMPReplyListener* listener);
     void receiveReply(SNMPData* data);
     static void stopListening(SNMPData* data);
+    Snmp* getSNMPv4();
+    Snmp* getSNMPv6();
 
 private:
     static SNMPClient* m_Instance;

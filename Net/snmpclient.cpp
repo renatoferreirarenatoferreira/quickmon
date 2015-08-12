@@ -114,15 +114,14 @@ SNMPData* SNMPClient::prepareData(int version,
     returnData->address = new UdpAddress(address.toString().toUtf8().constData());
 
     //copy oids
-    Oid nextOID;
     Vb nextVar;
     QStringListIterator OIDsIterator(returnData->OIDs);
     while (OIDsIterator.hasNext())
     {
-        nextOID = OIDsIterator.next().toUtf8().constData();
-        if (nextOID.valid())
+        returnData->lastOID = OIDsIterator.next().toUtf8().constData();
+        if (returnData->lastOID.valid())
         {
-            nextVar.set_oid(nextOID);
+            nextVar.set_oid(returnData->lastOID);
             returnData->pdu += nextVar;
         }
     }
@@ -219,6 +218,7 @@ SNMPData* SNMPClient::SNMPGet(int version,
                               ISNMPReplyListener* listener)
 {
     SNMPData* data = this->prepareData(version, address, OIDs, community, NULL, NULL, NULL, NULL, NULL, listener);
+    data->queryType = SNMPCLIENT_QUERYTYPE_GET;
 
     if (data->address->get_ip_version() == Address::version_ipv4)
         this->SNMPv4->get(data->pdu, *data->target, callback, data);
@@ -238,11 +238,55 @@ SNMPData* SNMPClient::SNMPv3Get(QHostAddress address,
                                 ISNMPReplyListener* listener)
 {
     SNMPData* data = this->prepareData(3, address, OIDs, NULL, v3SecLevel, v3AuthProtocol, v3AuthPassPhrase, v3PrivProtocol, v3PrivPassPhrase, listener);
+    data->queryType = SNMPCLIENT_QUERYTYPE_GET;
 
     if (data->address->get_ip_version() == Address::version_ipv4)
         this->SNMPv4->get(data->pdu, *data->target, callback, data);
     else if (data->address->get_ip_version() == Address::version_ipv6)
         this->SNMPv6->get(data->pdu, *data->target, callback, data);
+
+    return data;
+}
+
+SNMPData* SNMPClient::SNMPWalk(int version,
+                               QHostAddress address,
+                               QString OID,
+                               QString community,
+                               ISNMPReplyListener* listener)
+{
+    QStringList OIDs;
+    OIDs.append(OID);
+
+    SNMPData* data = this->prepareData(version, address, OIDs, community, NULL, NULL, NULL, NULL, NULL, listener);
+    data->queryType = SNMPCLIENT_QUERYTYPE_WALK;
+
+    if (data->address->get_ip_version() == Address::version_ipv4)
+        this->SNMPv4->get_bulk(data->pdu, *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
+    else if (data->address->get_ip_version() == Address::version_ipv6)
+        this->SNMPv6->get_bulk(data->pdu, *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
+
+    return data;
+}
+
+SNMPData* SNMPClient::SNMPv3Walk(QHostAddress address,
+                                 QString OID,
+                                 QString v3SecLevel,
+                                 QString v3AuthProtocol,
+                                 QString v3AuthPassPhrase,
+                                 QString v3PrivProtocol,
+                                 QString v3PrivPassPhrase,
+                                 ISNMPReplyListener* listener)
+{
+    QStringList OIDs;
+    OIDs.append(OID);
+
+    SNMPData* data = this->prepareData(3, address, OIDs, NULL, v3SecLevel, v3AuthProtocol, v3AuthPassPhrase, v3PrivProtocol, v3PrivPassPhrase, listener);
+    data->queryType = SNMPCLIENT_QUERYTYPE_WALK;
+
+    if (data->address->get_ip_version() == Address::version_ipv4)
+        this->SNMPv4->get_bulk(data->pdu, *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
+    else if (data->address->get_ip_version() == Address::version_ipv6)
+        this->SNMPv6->get_bulk(data->pdu, *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
 
     return data;
 }
@@ -274,19 +318,42 @@ void SNMPClient::stopListening(SNMPData* data)
     data->mutex->unlock();
 }
 
+Snmp* SNMPClient::getSNMPv4()
+{
+    return this->SNMPv4;
+}
+
+Snmp* SNMPClient::getSNMPv6()
+{
+    return this->SNMPv6;
+}
+
 void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
 {
     SNMPData* data = (SNMPData*) cd;
 
+    bool endOfTree = false;
+    Vb nextVar;
     if (reason == SNMP_CLASS_ASYNC_RESPONSE)
     {
         data->responseStatus = SNMP_RESPONSE_SUCCESS;
 
-        Vb nextVar;
         OctetStr octetString;
+        Oid nextOid;
         for ( int i=0; i<pdu.get_vb_count(); i++)
         {
             pdu.get_vb(nextVar,i);
+
+            //test if we're still in the tree
+            if (data->queryType == SNMPCLIENT_QUERYTYPE_WALK)
+            {
+                nextVar.get_oid(nextOid);
+                if (data->lastOID.nCompare(data->lastOID.len(), nextOid) != 0)
+                {
+                    endOfTree = true;
+                    break;
+                }
+            }
 
             if (nextVar.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW)
                 if (nextVar.get_syntax() == sNMP_SYNTAX_OCTETS)
@@ -301,5 +368,15 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
     else
         data->responseStatus = SNMP_RESPONSE_ERROR;
 
-    SNMPClient::Instance()->receiveReply(data);
+    if (data->queryType == SNMPCLIENT_QUERYTYPE_WALK && !endOfTree)
+    {
+        //continue collecting the tree
+        data->pdu.set_vblist(&nextVar, 1);
+        if (data->address->get_ip_version() == Address::version_ipv4)
+            SNMPClient::Instance()->getSNMPv4()->get_bulk(data->pdu, *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
+        else if (data->address->get_ip_version() == Address::version_ipv6)
+            SNMPClient::Instance()->getSNMPv6()->get_bulk(data->pdu, *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
+    }
+    else
+        SNMPClient::Instance()->receiveReply(data);
 }
