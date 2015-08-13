@@ -223,18 +223,18 @@ void SNMPListWindow::receiveSNMPReply(SNMPData* data)
     if (data->responseStatus == SNMP_RESPONSE_SUCCESS)
     {
         //update ui
-        QMapIterator<QString, QString> iterator(data->returnValues);
+        QListIterator<SNMPVariable> iterator(data->returnVariables);
         while (iterator.hasNext()) {
-            iterator.next();
+            SNMPVariable nextVariable = iterator.next();
 
             SNMPListItemReference* nextItem;
-            if (this->itemHash.contains(iterator.key()))
+            if (this->itemHash.contains(nextVariable.OID))
             {
-                nextItem = this->itemHash.value(iterator.key());
+                nextItem = this->itemHash.value(nextVariable.OID);
                 if (nextItem->valueMapped)
-                    nextItem->listItem->setValue(this->clientInstance->mapValue(iterator.key(), iterator.value()));
+                    nextItem->listItem->setValue(this->clientInstance->mapValue(nextVariable.OID, nextVariable.value));
                 else
-                    nextItem->listItem->setValue(iterator.value());
+                    nextItem->listItem->setValue(nextVariable.value);
             }
         }
     } else if (data->responseStatus == SNMP_RESPONSE_TIMEOUT)
@@ -248,10 +248,10 @@ void SNMPListWindow::receiveSNMPReply(SNMPData* data)
     this->waitingForReply = false;
 
 #ifdef QT_DEBUG
-    QMapIterator<QString, QString> iterator(data->returnValues);
+    QListIterator<SNMPVariable> iterator(data->returnVariables);
     while (iterator.hasNext()) {
-        iterator.next();
-        qDebug() << "OID:" << iterator.key() << "Value:" << iterator.value();
+        SNMPVariable nextVariable = iterator.next();
+        qDebug() << "OID:" << nextVariable.OID << "Value:" << nextVariable.value;
     }
 #endif
 }

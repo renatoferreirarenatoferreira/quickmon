@@ -356,12 +356,19 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
             }
 
             if (nextVar.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW)
+            {
+                SNMPVariable nextReturnVariable;
+                nextReturnVariable.OID = nextVar.get_printable_oid();
+
                 if (nextVar.get_syntax() == sNMP_SYNTAX_OCTETS)
                 {
                     nextVar.get_value(octetString);
-                    data->returnValues.insert(nextVar.get_printable_oid(), octetString.get_printable_clear());
+                    nextReturnVariable.value = octetString.get_printable_clear();
                 } else
-                    data->returnValues.insert(nextVar.get_printable_oid(), nextVar.get_printable_value());
+                    nextReturnVariable.value = nextVar.get_printable_value();
+
+                data->returnVariables.append(nextReturnVariable);
+            }
         }
     } else if (reason == SNMP_CLASS_TIMEOUT)
         data->responseStatus = SNMP_RESPONSE_TIMEOUT;

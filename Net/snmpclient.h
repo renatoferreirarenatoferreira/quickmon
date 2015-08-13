@@ -30,6 +30,12 @@ using namespace Snmp_pp;
 #define SNMP_RESPONSE_TIMEOUT 1
 #define SNMP_RESPONSE_ERROR 2
 
+struct SNMPVariable
+{
+    QString OID;
+    QString value;
+};
+
 struct SNMPData {
     //common data
     snmp_version version;
@@ -61,7 +67,7 @@ struct SNMPData {
     PVOID listener;
 
     //return data
-    QMap<QString, QString> returnValues;
+    QList<SNMPVariable> returnVariables;
     int responseStatus;
 };
 
