@@ -113,18 +113,39 @@ SNMPData* SNMPClient::prepareData(int version,
     //destination address
     returnData->address = new UdpAddress(address.toString().toUtf8().constData());
 
-    //copy oids
+    //create lists of OIDs
     Vb nextVar;
     QStringListIterator OIDsIterator(returnData->OIDs);
+    int oidCounter = 0;
+    bool createPdu = true;
+    Pdu* currPdu;
     while (OIDsIterator.hasNext())
     {
+        //create new varbind and add it in array
+        if (createPdu)
+        {
+            currPdu = new Pdu();
+            returnData->pduList.append(currPdu);
+            createPdu = false;
+        }
+
+        //add oid to current varbind
         returnData->lastOID = OIDsIterator.next().toUtf8().constData();
         if (returnData->lastOID.valid())
         {
             nextVar.set_oid(returnData->lastOID);
-            returnData->pdu += nextVar;
+            *currPdu += nextVar;
+            oidCounter++;
+        }
+
+        //reset counter
+        if (oidCounter == SNMPCLIENT_GET_MAXOID)
+        {
+            oidCounter = 0;
+            createPdu = true;
         }
     }
+    returnData->currPdu = 0;
 
     //set target
     if (version == 1 || version == 2)
@@ -201,9 +222,13 @@ SNMPData* SNMPClient::prepareData(int version,
         returnData->userTarget->set_security_name(returnData->securityName);
 
         //configure pdu
-        returnData->pdu.set_security_level(returnData->securityLevel);
-        returnData->pdu.set_context_name(returnData->contextName);
-        returnData->pdu.set_context_engine_id(returnData->contextEngineID);
+        for (int i = 0; i < returnData->pduList.size(); ++i)
+        {
+            Pdu* currPdu = returnData->pduList.at(i);
+            currPdu->set_security_level(returnData->securityLevel);
+            currPdu->set_context_name(returnData->contextName);
+            currPdu->set_context_engine_id(returnData->contextEngineID);
+        }
 
         returnData->target = returnData->userTarget;
     }
@@ -221,9 +246,9 @@ SNMPData* SNMPClient::SNMPGet(int version,
     data->queryType = SNMPCLIENT_QUERYTYPE_GET;
 
     if (data->address->get_ip_version() == Address::version_ipv4)
-        this->SNMPv4->get(data->pdu, *data->target, callback, data);
+        this->SNMPv4->get(*data->pduList.at(data->currPdu), *data->target, callback, data);
     else if (data->address->get_ip_version() == Address::version_ipv6)
-        this->SNMPv6->get(data->pdu, *data->target, callback, data);
+        this->SNMPv6->get(*data->pduList.at(data->currPdu), *data->target, callback, data);
 
     return data;
 }
@@ -241,9 +266,9 @@ SNMPData* SNMPClient::SNMPv3Get(QHostAddress address,
     data->queryType = SNMPCLIENT_QUERYTYPE_GET;
 
     if (data->address->get_ip_version() == Address::version_ipv4)
-        this->SNMPv4->get(data->pdu, *data->target, callback, data);
+        this->SNMPv4->get(*data->pduList.at(data->currPdu), *data->target, callback, data);
     else if (data->address->get_ip_version() == Address::version_ipv6)
-        this->SNMPv6->get(data->pdu, *data->target, callback, data);
+        this->SNMPv6->get(*data->pduList.at(data->currPdu), *data->target, callback, data);
 
     return data;
 }
@@ -261,9 +286,9 @@ SNMPData* SNMPClient::SNMPWalk(int version,
     data->queryType = SNMPCLIENT_QUERYTYPE_WALK;
 
     if (data->address->get_ip_version() == Address::version_ipv4)
-        this->SNMPv4->get_bulk(data->pdu, *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
+        this->SNMPv4->get_bulk(*data->pduList.at(data->currPdu), *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
     else if (data->address->get_ip_version() == Address::version_ipv6)
-        this->SNMPv6->get_bulk(data->pdu, *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
+        this->SNMPv6->get_bulk(*data->pduList.at(data->currPdu), *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
 
     return data;
 }
@@ -284,9 +309,9 @@ SNMPData* SNMPClient::SNMPv3Walk(QHostAddress address,
     data->queryType = SNMPCLIENT_QUERYTYPE_WALK;
 
     if (data->address->get_ip_version() == Address::version_ipv4)
-        this->SNMPv4->get_bulk(data->pdu, *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
+        this->SNMPv4->get_bulk(*data->pduList.at(data->currPdu), *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
     else if (data->address->get_ip_version() == Address::version_ipv6)
-        this->SNMPv6->get_bulk(data->pdu, *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
+        this->SNMPv6->get_bulk(*data->pduList.at(data->currPdu), *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
 
     return data;
 }
@@ -301,6 +326,10 @@ void SNMPClient::receiveReply(SNMPData* data)
     data->mutex->unlock();
 
     //clear data
+    for (int i = 0; i < data->pduList.size(); ++i)
+        delete data->pduList.at(i);
+    data->pduList.clear();
+    ////
     if (data->version == version1 || data->version == version2c)
         delete data->communityTarget;
     else if (data->version == version3)
@@ -332,7 +361,7 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
 {
     SNMPData* data = (SNMPData*) cd;
 
-    bool endOfTree = false;
+    bool endOfData = false;
     Vb nextVar;
     if (reason == SNMP_CLASS_ASYNC_RESPONSE)
     {
@@ -344,15 +373,19 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
         {
             pdu.get_vb(nextVar,i);
 
-            //test if we're still in the tree
+            //test if we're still in the tree in case of snmpwalk or if all oid were collected in case of get
             if (data->queryType == SNMPCLIENT_QUERYTYPE_WALK)
             {
                 nextVar.get_oid(nextOid);
                 if (data->lastOID.nCompare(data->lastOID.len(), nextOid) != 0)
                 {
-                    endOfTree = true;
+                    endOfData = true;
                     break;
                 }
+            } else if (data->queryType == SNMPCLIENT_QUERYTYPE_GET)
+            {
+                if ((data->pduList.size()-1) == data->currPdu)
+                    endOfData = true;
             }
 
             if (nextVar.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW)
@@ -375,14 +408,23 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
     else
         data->responseStatus = SNMP_RESPONSE_ERROR;
 
-    if (data->queryType == SNMPCLIENT_QUERYTYPE_WALK && !endOfTree)
+    if (data->queryType == SNMPCLIENT_QUERYTYPE_WALK && !endOfData)
     {
         //continue collecting the tree
-        data->pdu.set_vblist(&nextVar, 1);
+        (*data->pduList.at(data->currPdu)).set_vblist(&nextVar, 1);
         if (data->address->get_ip_version() == Address::version_ipv4)
-            SNMPClient::Instance()->getSNMPv4()->get_bulk(data->pdu, *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
+            SNMPClient::Instance()->getSNMPv4()->get_bulk(*data->pduList.at(data->currPdu), *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
         else if (data->address->get_ip_version() == Address::version_ipv6)
-            SNMPClient::Instance()->getSNMPv6()->get_bulk(data->pdu, *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
+            SNMPClient::Instance()->getSNMPv6()->get_bulk(*data->pduList.at(data->currPdu), *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
+    }
+    else if (data->queryType == SNMPCLIENT_QUERYTYPE_GET && !endOfData)
+    {
+        //collect next group of OIDs
+        data->currPdu++;
+        if (data->address->get_ip_version() == Address::version_ipv4)
+            SNMPClient::Instance()->getSNMPv4()->get(*data->pduList.at(data->currPdu), *data->target, callback, data);
+        else if (data->address->get_ip_version() == Address::version_ipv6)
+            SNMPClient::Instance()->getSNMPv6()->get(*data->pduList.at(data->currPdu), *data->target, callback, data);
     }
     else
         SNMPClient::Instance()->receiveReply(data);

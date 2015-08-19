@@ -22,6 +22,7 @@ using namespace Snmp_pp;
 #define SNMPCLIENT_QUERYTYPE_GET 0
 #define SNMPCLIENT_QUERYTYPE_WALK 1
 #define SNMPCLIENT_BULK_MAXREPETITIONS 10
+#define SNMPCLIENT_GET_MAXOID 10
 
 #pragma comment(lib, "SNMP++.lib")
 #pragma comment(lib, "libdes.lib")
@@ -40,7 +41,8 @@ struct SNMPData {
     //common data
     snmp_version version;
     UdpAddress* address;
-    Pdu pdu;
+    QList<Pdu*> pduList;
+    int currPdu;
     SnmpTarget* target;
     QStringList OIDs;
     QHostAddress requestAddress;
