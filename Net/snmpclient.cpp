@@ -369,9 +369,11 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
 
         OctetStr octetString;
         Oid nextOid;
+        int nextVarSyntax;
         for ( int i=0; i<pdu.get_vb_count(); i++)
         {
             pdu.get_vb(nextVar,i);
+            nextVarSyntax = nextVar.get_syntax();
 
             //test if we're still in the tree in case of snmpwalk or if all oid were collected in case of get
             if (data->queryType == SNMPCLIENT_QUERYTYPE_WALK)
@@ -388,15 +390,18 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
                     endOfData = true;
             }
 
-            if (nextVar.get_syntax() != sNMP_SYNTAX_ENDOFMIBVIEW)
+            if (nextVarSyntax != sNMP_SYNTAX_ENDOFMIBVIEW)
             {
                 SNMPVariable nextReturnVariable;
                 nextReturnVariable.OID = nextVar.get_printable_oid();
 
-                if (nextVar.get_syntax() == sNMP_SYNTAX_OCTETS)
+                if (nextVarSyntax == sNMP_SYNTAX_OCTETS)
                 {
                     nextVar.get_value(octetString);
+                    octetString.set_hex_output_type(OctetStr::OutputHex);
                     nextReturnVariable.value = octetString.get_printable_clear();
+                    nextReturnVariable.hexValue = octetString.get_printable_hex();
+                    nextReturnVariable.hexValue = nextReturnVariable.hexValue.trimmed();
                 } else
                     nextReturnVariable.value = nextVar.get_printable_value();
 

@@ -35,6 +35,7 @@ struct SNMPVariable
 {
     QString OID;
     QString value;
+    QString hexValue;
 };
 
 struct SNMPData {
