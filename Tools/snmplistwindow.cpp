@@ -78,6 +78,7 @@ void SNMPListWindow::configure(QString templateName, QMap<QString, QVariant> tem
         SNMPListItemReference* newItem = new SNMPListItemReference();
         newItem->listItem = new SNMPListItem();
         newItem->listItem->configure(orderedList.size(), itemName);
+        newItem->valueType = itemValues.value("Type").toString();
 
         newItem->valueMapped = itemValues.contains("ValueMappings");
         if (newItem->valueMapped)
@@ -232,9 +233,14 @@ void SNMPListWindow::receiveSNMPReply(SNMPData* data)
             {
                 nextItem = this->itemHash.value(nextVariable.OID);
                 if (nextItem->valueMapped)
-                    nextItem->listItem->setValue(this->clientInstance->mapValue(nextVariable.OID, nextVariable.value));
+                    nextItem->listItem->setValue(this->clientInstance->mapValue(nextVariable.OID, nextVariable.variantValue.toString()));
+                else if (nextVariable.type == SNMPVARIABLE_TYPE_OCTETSTRING)
+                    if (nextItem->valueType == "Hex")
+                        nextItem->listItem->setValue(nextVariable.variantValue.toMap().value("hexValue").toString());
+                    else
+                        nextItem->listItem->setValue(nextVariable.variantValue.toMap().value("stringValue").toString());
                 else
-                    nextItem->listItem->setValue(nextVariable.value);
+                    nextItem->listItem->setValue(nextVariable.variantValue.toString());
             }
         }
     } else if (data->responseStatus == SNMP_RESPONSE_TIMEOUT)
@@ -251,7 +257,7 @@ void SNMPListWindow::receiveSNMPReply(SNMPData* data)
     QListIterator<SNMPVariable> iterator(data->returnVariables);
     while (iterator.hasNext()) {
         SNMPVariable nextVariable = iterator.next();
-        qDebug() << "OID:" << nextVariable.OID << "Value:" << nextVariable.value;
+        qDebug() << "OID:" << nextVariable.OID << "Value:" << nextVariable.variantValue;
     }
 #endif
 }

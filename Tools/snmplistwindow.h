@@ -23,6 +23,7 @@ struct SNMPListItemReference
     QString OID;
     SNMPListItem* listItem;
     bool valueMapped;
+    QString valueType;
 };
 
 class SNMPListWindow : public QWidget, public ISNMPReplyListener
