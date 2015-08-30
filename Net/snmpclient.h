@@ -31,11 +31,17 @@ using namespace Snmp_pp;
 #define SNMP_RESPONSE_TIMEOUT 1
 #define SNMP_RESPONSE_ERROR 2
 
+#define SNMPVARIABLE_TYPE_OCTETSTRING 0
+#define SNMPVARIABLE_TYPE_INTEGER 1
+#define SNMPVARIABLE_TYPE_UNSIGNEDINT 2
+#define SNMPVARIABLE_TYPE_COUNTER64 5
+#define SNMPVARIABLE_TYPE_OTHER 6
+
 struct SNMPVariable
 {
     QString OID;
-    QString value;
-    QString hexValue;
+    int type;
+    QVariant variantValue;
 };
 
 struct SNMPData {

@@ -395,15 +395,52 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
                 SNMPVariable nextReturnVariable;
                 nextReturnVariable.OID = nextVar.get_printable_oid();
 
-                if (nextVarSyntax == sNMP_SYNTAX_OCTETS)
+                if (nextVarSyntax == sNMP_SYNTAX_CNTR32 || nextVarSyntax == sNMP_SYNTAX_UINT32)
                 {
+                    nextReturnVariable.type = SNMPVARIABLE_TYPE_UNSIGNEDINT;
+
+                    unsigned int rawValue;
+                    nextVar.get_value(rawValue);
+
+                    nextReturnVariable.variantValue = QVariant(rawValue);
+                } else if (nextVarSyntax == sNMP_SYNTAX_INT32)
+                {
+                    nextReturnVariable.type = SNMPVARIABLE_TYPE_INTEGER;
+
+                    int rawValue;
+                    nextVar.get_value(rawValue);
+
+                    nextReturnVariable.variantValue = QVariant(rawValue);
+                } else if (nextVarSyntax == sNMP_SYNTAX_CNTR64)
+                {
+                    nextReturnVariable.type = SNMPVARIABLE_TYPE_COUNTER64;
+
+                    quint64 rawValue;
+                    nextVar.get_value(rawValue);
+
+                    nextReturnVariable.variantValue = QVariant(rawValue);
+                } else if (nextVarSyntax == sNMP_SYNTAX_OCTETS)
+                {
+                    nextReturnVariable.type = SNMPVARIABLE_TYPE_OCTETSTRING;
+
+                    QMap<QString, QVariant> rawValue;
+
                     nextVar.get_value(octetString);
                     octetString.set_hex_output_type(OctetStr::OutputHex);
-                    nextReturnVariable.value = octetString.get_printable_clear();
-                    nextReturnVariable.hexValue = octetString.get_printable_hex();
-                    nextReturnVariable.hexValue = nextReturnVariable.hexValue.trimmed();
-                } else
-                    nextReturnVariable.value = nextVar.get_printable_value();
+
+                    QString stringValue = octetString.get_printable_clear();
+                    rawValue.insert("stringValue", stringValue);
+
+                    QString hexValue = octetString.get_printable_hex();
+                    hexValue = hexValue.trimmed();
+                    rawValue.insert("hexValue", hexValue);
+
+                    nextReturnVariable.variantValue = rawValue;
+                } else {
+                    nextReturnVariable.type = SNMPVARIABLE_TYPE_OTHER;
+                    QString rawValue = nextVar.get_printable_value();
+                    nextReturnVariable.variantValue = QVariant(rawValue);
+                }
 
                 data->returnVariables.append(nextReturnVariable);
             }
