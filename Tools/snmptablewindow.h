@@ -3,24 +3,67 @@
 
 #include <QWidget>
 #include <QMap>
+#include <QSqlQuery>
+#include <QHostAddress>
+#include <QHostInfo>
+#include <QTableWidgetItem>
+
+#include "../hoststreeview.h"
+#include "../Net/snmpclient.h"
+#include "../localdata.h"
 
 namespace Ui {
 class SNMPTableWindow;
 }
 
-class SNMPTableWindow : public QWidget
+struct SNMPTableItemReference
+{
+    QString OID;
+    QString baseOID;
+    QTableWidgetItem* tableItem;
+    bool valueMapped;
+    QString valueType;
+};
+
+class SNMPTableWindow : public QWidget, public ISNMPReplyListener
 {
     Q_OBJECT
 
 public:
     explicit SNMPTableWindow(QWidget *parent = 0);
     ~SNMPTableWindow();
+    void dragEnterEvent(QDragEnterEvent* event);
+    void dropEvent(QDropEvent* event);
     void configure(QString templateName, QMap<QString, QVariant> templateItems);
+    void receiveSNMPReply(SNMPData* data);
+
+private slots:
+    void run(int hostID);
+    void lookupHostReply(QHostInfo);
+    void warn(QString title, QString message);
 
 private:
     Ui::SNMPTableWindow *ui;
+    SNMPClient* clientInstance;
     QString templateName;
-    QMap<QString, QVariant> templateItems;
+    QHash<QString, SNMPTableItemReference*> itemHash;
+    QStringList OIDs;
+    QHostAddress destinationAddress;
+    int lookupID;
+    int destinationSNMPVersion;
+    QString destinationSNMPCommunity;
+    QString destinationSNMPv3SecLevel;
+    QString destinationSNMPv3AuthProtocol;
+    QString destinationSNMPv3AuthPassPhrase;
+    QString destinationSNMPv3PrivProtocol;
+    QString destinationSNMPv3PrivPassPhrase;
+    void resetValues();
+    SNMPData* updateValues();
+    SNMPData* updateValues(QStringList OIDs);
+    bool waitingForReply;
+    bool requestSent;
+    int lastHostID;
+    SNMPData* SNMPdata = NULL;
 };
 
 #endif // SNMPTABLEWINDOW_H
