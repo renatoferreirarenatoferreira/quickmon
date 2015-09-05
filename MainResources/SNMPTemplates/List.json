@@ -1,3 +1,10 @@
 {
-    "Standard MIBs": ":/SNMPTemplates/StandardMibs"
+    "Standard MIBs": {
+        "Order": 0,
+        "File": ":/SNMPTemplates/StandardMibs"
+    },
+    "Net-SNMP": {
+        "Order": 1,
+        "File": ":/SNMPTemplates/Net-SNMP"
+    }
 }

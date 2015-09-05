@@ -42,6 +42,9 @@ void SNMPDataTreeWidget::loadTemplates()
     connect(this, SIGNAL(itemExpanded(QTreeWidgetItem*)), this, SLOT(itemStateChanged(QTreeWidgetItem*)));
     connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*, int)));
 
+    //ordered list/map
+    QMap<int, QStringList> externalOrderedList;
+
     //open embbeded file
     QFile templateListFile(":/SNMPTemplates/List");
     if (!templateListFile.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -53,9 +56,22 @@ void SNMPDataTreeWidget::loadTemplates()
     while (templateListIterator.hasNext()) {
         templateListIterator.next();
 
+        //populate the ordered list for external items
+        QMap<QString, QVariant> templateItems = templateListIterator.value().toMap();
+        QStringList templateData;
+        templateData.append(templateListIterator.key());
+        templateData.append(templateItems.value("File").toString());
+        externalOrderedList.insert(templateItems.value("Order").toInt(), templateData);
+    }
+
+    //add external items using the configured order
+    QMapIterator<int, QStringList> externalIterator(externalOrderedList);
+    while (externalIterator.hasNext()) {
+        externalIterator.next();
+
         //add main top level item
         QTreeWidgetItem* topLevelItem = new QTreeWidgetItem();
-        topLevelItem->setText(0, templateListIterator.key());
+        topLevelItem->setText(0, externalIterator.value().first());
         topLevelItem->setIcon(0, this->closeIcon);
         this->topLevelItems.append(topLevelItem);
 
@@ -63,7 +79,7 @@ void SNMPDataTreeWidget::loadTemplates()
         QMap<int, QTreeWidgetItem*> internalOrderedList;
 
         //add aditional files
-        QFile templateFile(templateListIterator.value().toString());
+        QFile templateFile(externalIterator.value().at(1));
         if (!templateFile.open(QIODevice::ReadOnly | QIODevice::Text))
                 continue;
         QJsonDocument templateJsonDocument = QJsonDocument::fromJson(templateFile.readAll());
