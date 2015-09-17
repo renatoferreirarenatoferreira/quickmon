@@ -450,7 +450,7 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
     else
         data->responseStatus = SNMP_RESPONSE_ERROR;
 
-    if (data->queryType == SNMPCLIENT_QUERYTYPE_WALK && !endOfData)
+    if (data->responseStatus == SNMP_RESPONSE_SUCCESS && data->queryType == SNMPCLIENT_QUERYTYPE_WALK && !endOfData)
     {
         //continue collecting the tree
         (*data->pduList.at(data->currPdu)).set_vblist(&nextVar, 1);
@@ -459,7 +459,7 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
         else if (data->address->get_ip_version() == Address::version_ipv6)
             SNMPClient::Instance()->getSNMPv6()->get_bulk(*data->pduList.at(data->currPdu), *data->target, 0, SNMPCLIENT_BULK_MAXREPETITIONS, callback, data);
     }
-    else if (data->queryType == SNMPCLIENT_QUERYTYPE_GET && !endOfData)
+    else if (data->responseStatus == SNMP_RESPONSE_SUCCESS && data->queryType == SNMPCLIENT_QUERYTYPE_GET && !endOfData)
     {
         //collect next group of OIDs
         data->currPdu++;

@@ -369,8 +369,8 @@ void SNMPTableWindow::receiveSNMPReply(SNMPData* data)
         QMetaObject::invokeMethod(this, "warn", Qt::QueuedConnection, Q_ARG(QString, "SNMP error"),
                                                                       Q_ARG(QString, "Unknown error in SNMP request!"));
 
-    //disable waiting flag (ONLY AFTER PHASE 2)
-    if (data->queryType == SNMPCLIENT_QUERYTYPE_GET)
+    //disable waiting flag (ONLY AFTER PHASE 2 or in case of errors)
+    if (data->queryType == SNMPCLIENT_QUERYTYPE_GET || data->responseStatus != SNMP_RESPONSE_SUCCESS)
         this->waitingForReply = false;
 
 #ifdef QT_DEBUG
