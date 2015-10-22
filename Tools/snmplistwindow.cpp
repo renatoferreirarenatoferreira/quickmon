@@ -77,7 +77,7 @@ void SNMPListWindow::configure(QString templateName, QMap<QString, QVariant> tem
 
         SNMPListItemReference* newItem = new SNMPListItemReference();
         newItem->listItem = new SNMPListItem();
-        newItem->listItem->configure(orderedList.size(), itemName);
+        newItem->listItem->configure(itemOrder, itemName);
         newItem->valueType = itemValues.value("Type").toString();
 
         newItem->valueMapped = itemValues.contains("ValueMappings");
