@@ -133,17 +133,17 @@ void SNMPDataTreeWidget::itemDoubleClicked(QTreeWidgetItem* item, int)
     if (templateType == "Graph")
     {
         SNMPGraphWindow* newSNMPGraphWindow = new SNMPGraphWindow();
-        newSNMPGraphWindow->configure(item->text(0), templateItems);
+        newSNMPGraphWindow->configure(item->parent()->text(0) + " / " + item->text(0), templateItems);
         newSNMPGraphWindow->show();
     } else if (templateType == "List")
     {
         SNMPListWindow* newSNMPListWindow = new SNMPListWindow();
-        newSNMPListWindow->configure(item->text(0), templateItems);
+        newSNMPListWindow->configure(item->parent()->text(0) + " / " + item->text(0), templateItems);
         newSNMPListWindow->show();
     } else if (templateType == "Table")
     {
         SNMPTableWindow* newSNMPTableWindow = new SNMPTableWindow();
-        newSNMPTableWindow->configure(item->text(0), templateItems);
+        newSNMPTableWindow->configure(item->parent()->text(0) + " / " + item->text(0), templateItems);
         newSNMPTableWindow->show();
     }
 }
