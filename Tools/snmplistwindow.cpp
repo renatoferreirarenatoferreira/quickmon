@@ -132,13 +132,14 @@ void SNMPListWindow::run(int hostID)
             this->destinationAddress.protocol() == QAbstractSocket::IPv6Protocol)
         {
             //update title
-            this->setWindowTitle("SNMP List: " + templateName + " " + query.value("address").toString());
+            this->setWindowTitle(this->templateName + ": " + query.value("address").toString());
             //collect data
             this->SNMPdata = this->updateValues();
             this->waitingForReply = true;
             this->requestSent = true;
+        } else {
+            this->setWindowTitle(this->templateName + ": Looking up for hostname " + query.value("address").toString());
         }
-
         //always look up for host name
         this->lookupID = QHostInfo::lookupHost(query.value("address").toString(), this, SLOT(lookupHostReply(QHostInfo)));
     }
@@ -155,7 +156,8 @@ void SNMPListWindow::lookupHostReply(QHostInfo hostInfo)
         //update address label
         this->destinationAddress = hostInfo.addresses().first();
         ui->labelAddress->setText(this->destinationAddress.toString()+" ("+hostInfo.hostName()+")");
-        this->setWindowTitle("SNMP List: " + templateName + " " + this->destinationAddress.toString()+" ("+hostInfo.hostName()+")");
+        //update title
+        this->setWindowTitle(this->templateName + ": " + this->destinationAddress.toString()+" ("+hostInfo.hostName()+")");
 
         if (!this->requestSent)
         {
@@ -164,6 +166,7 @@ void SNMPListWindow::lookupHostReply(QHostInfo hostInfo)
         }
     } else {
         QMessageBox::warning(this, "Hostname lookup", "Address cannot be resolved or is invalid!");
+        this->setWindowTitle(this->templateName + ": Address cannot be resolved or is invalid!");
     }
 }
 
