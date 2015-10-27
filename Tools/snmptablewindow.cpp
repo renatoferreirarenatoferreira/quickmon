@@ -26,15 +26,18 @@ SNMPTableWindow::~SNMPTableWindow()
     if (this->waitingForReply)
         SNMPClient::stopListening(this->SNMPdata);
 
+    //clean up table
+    ui->tableWidget->clear();
+    ui->tableWidget->setRowCount(0);
     //delete items
     QHashIterator<QString, SNMPTableItemReference*> iterator(this->itemHash);
     while (iterator.hasNext()) {
         iterator.next();
         SNMPTableItemReference* nextItem = iterator.value();
-        delete nextItem->tableItem;
+        //QTableWidget takes ownership of the item.
+        //delete nextItem->tableItem;
         delete nextItem;
     }
-    ui->tableWidget->clearContents();
     this->itemHash.clear();
     this->OIDs.clear();
 
@@ -234,6 +237,9 @@ void SNMPTableWindow::resetValues()
     this->requestSent = false;
     this->destinationAddress.setAddress("0.0.0.0");
 
+    //clean up table
+    ui->tableWidget->clearContents();
+    ui->tableWidget->setRowCount(0);
     //clear items
     QHashIterator<QString, SNMPTableItemReference*> iterator(this->itemHash);
     while (iterator.hasNext()) {
@@ -242,12 +248,12 @@ void SNMPTableWindow::resetValues()
         //keep headers
         if (nextItem->baseOID.size() > 0)
         {
-            delete nextItem->tableItem;
+            //QTableWidget takes ownership of the item.
+            //delete nextItem->tableItem;
             delete nextItem;
             this->itemHash.remove(iterator.key());
         }
     }
-    ui->tableWidget->clearContents();
 }
 
 void SNMPTableWindow::receiveSNMPReply(SNMPData* data)
