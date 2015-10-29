@@ -166,6 +166,8 @@ void PingWindow::resetValues()
     if (this->pigingContext != NULL)
         Pinger::stopListening(this->pigingContext);
 
+    //reset values
+    this->retryImmediatelly = false;
     this->pigingContext = NULL;
     ui->labelLastRTT->setText("0.0 ms");
     ui->labelAvgRTT->setText("0.0 ms");
