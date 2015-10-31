@@ -370,6 +370,7 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
         OctetStr octetString;
         Oid nextOid;
         int nextVarSyntax;
+        qint64 timestamp = QDateTime::currentMSecsSinceEpoch();
         for ( int i=0; i<pdu.get_vb_count(); i++)
         {
             pdu.get_vb(nextVar,i);
@@ -394,6 +395,7 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
             {
                 SNMPVariable nextReturnVariable;
                 nextReturnVariable.OID = nextVar.get_printable_oid();
+                nextReturnVariable.timestamp = timestamp;
 
                 if (nextVarSyntax == sNMP_SYNTAX_CNTR32 || nextVarSyntax == sNMP_SYNTAX_UINT32)
                 {

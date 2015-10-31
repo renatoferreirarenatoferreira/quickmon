@@ -8,6 +8,7 @@
 #include <QHostAddress>
 #include <QStringListIterator>
 #include <QMap>
+#include <QDateTime>
 
 #include <WinSock2.h> //avoiding the winsock include hell
 #define STDCXX_98_HEADERS //fixing snmppp lib configration
@@ -42,6 +43,7 @@ struct SNMPVariable
     QString OID;
     int type;
     QVariant variantValue;
+    qint64 timestamp;
 };
 
 struct SNMPData {
