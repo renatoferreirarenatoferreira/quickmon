@@ -20,6 +20,9 @@ SNMPClient::SNMPClient(QObject *parent) : QObject(parent)
 
     int construct_status;
     this->v3_MP = new v3MP("dummy", 0, construct_status);
+
+    //register type returned by SNMP requests
+    qRegisterMetaType<QList<SNMPVariable>>("QList<SNMPVariable>");
 }
 
 SNMPClient::~SNMPClient()
