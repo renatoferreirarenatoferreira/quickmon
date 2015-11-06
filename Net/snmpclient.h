@@ -80,6 +80,7 @@ struct SNMPData {
     //return data
     QList<SNMPVariable> returnVariables;
     int responseStatus;
+    QString errorMessage;
 };
 
 class ISNMPReplyListener

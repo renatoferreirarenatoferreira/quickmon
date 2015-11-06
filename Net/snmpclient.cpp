@@ -379,6 +379,13 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
             pdu.get_vb(nextVar,i);
             nextVarSyntax = nextVar.get_syntax();
 
+            if (nextVarSyntax != SNMP_CLASS_SUCCESS)
+            {
+                data->responseStatus = SNMP_RESPONSE_ERROR;
+                data->errorMessage = Snmp::error_msg(nextVarSyntax);
+                break;
+            }
+
             //test if we're still in the tree in case of snmpwalk or if all oid were collected in case of get
             if (data->queryType == SNMPCLIENT_QUERYTYPE_WALK)
             {
@@ -451,9 +458,15 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
             }
         }
     } else if (reason == SNMP_CLASS_TIMEOUT)
+    {
         data->responseStatus = SNMP_RESPONSE_TIMEOUT;
+        data->errorMessage = Snmp::error_msg(reason);
+    }
     else
+    {
         data->responseStatus = SNMP_RESPONSE_ERROR;
+        data->errorMessage = Snmp::error_msg(reason);
+    }
 
     if (data->responseStatus == SNMP_RESPONSE_SUCCESS && data->queryType == SNMPCLIENT_QUERYTYPE_WALK && !endOfData)
     {
