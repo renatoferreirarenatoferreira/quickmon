@@ -379,7 +379,7 @@ void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
             pdu.get_vb(nextVar,i);
             nextVarSyntax = nextVar.get_syntax();
 
-            if (nextVarSyntax != SNMP_CLASS_SUCCESS)
+            if (nextVar.get_exception_status() != SNMP_CLASS_SUCCESS)
             {
                 data->responseStatus = SNMP_RESPONSE_ERROR;
                 data->errorMessage = Snmp::error_msg(nextVarSyntax);
