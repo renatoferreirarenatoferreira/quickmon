@@ -17,7 +17,7 @@ HostsTreeView::HostsTreeView(QWidget* parent = 0) : QTreeView(parent)
     //configure treeview
     this->setModel(proxyHostsModel);
     this->setColumnHidden(0, true);
-    this->setColumnWidth(1, 130);
+    this->setColumnWidth(1, 120);
     this->setColumnWidth(2, 80);
     this->setColumnWidth(3, 20);
     this->sortByColumn(1, Qt::SortOrder::AscendingOrder);
