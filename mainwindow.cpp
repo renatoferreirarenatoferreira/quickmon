@@ -39,6 +39,10 @@ MainWindow::MainWindow(QWidget *parent) :
     helpButton->setToolTip("Help");
     //help menu to toolbar
     ui->toolBar->addWidget(helpButton);
+
+    //set splitter initial size
+    ui->splitter->setStretchFactor(0,2);
+    ui->splitter->setStretchFactor(1,1);
 }
 
 MainWindow::~MainWindow()
