@@ -12,6 +12,16 @@ SNMPTableWindow::SNMPTableWindow(QWidget *parent) :
     //drop behavior
     setAcceptDrops(true);
 
+    //configure context menu
+    ui->tableWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->tableWidget, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
+    //menu icons
+    this->graphIcon.addFile(QStringLiteral(":/Icons/SNMPGraph"), QSize());
+
+    //configure selection behavior
+    ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+
     //get a client instance
     this->clientInstance = SNMPClient::Instance();
 
@@ -41,6 +51,17 @@ SNMPTableWindow::~SNMPTableWindow()
     this->itemHash.clear();
     this->OIDs.clear();
 
+    //remove context menu items
+    QHashIterator<QAction*, SNMPTableContextMenuReference*> contextMenuIterator(this->menuHash);
+    while (contextMenuIterator.hasNext())
+    {
+        contextMenuIterator.next();
+        SNMPTableContextMenuReference* nextItem = contextMenuIterator.value();
+        delete nextItem->menuAction;
+        delete nextItem;
+    }
+    this->menuHash.clear();
+
     delete ui;
 }
 
@@ -66,16 +87,17 @@ void SNMPTableWindow::configure(QString templateName, QMap<QString, QVariant> te
 
     this->templateName = templateName;
 
-    QMap<int, SNMPTableItemReference*> orderedList;
+    // configure table data //////////////////////////////////////////////////
+    QMap<int, SNMPTableItemReference*> orderedDataList;
 
-    QMap<QString, QVariant> itemList = templateItems.value("Items").toMap();
-    QMapIterator<QString, QVariant> itemListIterator(itemList);
-    while (itemListIterator.hasNext())
+    QMap<QString, QVariant> itemDataList = templateItems.value("Items").toMap();
+    QMapIterator<QString, QVariant> itemDataListIterator(itemDataList);
+    while (itemDataListIterator.hasNext())
     {
-        itemListIterator.next();
+        itemDataListIterator.next();
 
-        QString itemName = itemListIterator.key();
-        QMap<QString, QVariant> itemValues = itemListIterator.value().toMap();
+        QString itemName = itemDataListIterator.key();
+        QMap<QString, QVariant> itemValues = itemDataListIterator.value().toMap();
         QString OID = itemValues.value("OID").toString();
         int itemOrder = itemValues.value("Order").toInt();
 
@@ -88,20 +110,24 @@ void SNMPTableWindow::configure(QString templateName, QMap<QString, QVariant> te
         if (newItem->valueMapped)
             this->clientInstance->addMappings(OID, itemValues.value("ValueMappings").toMap());
 
-        orderedList.insert(itemOrder, newItem);
+        orderedDataList.insert(itemOrder, newItem);
         this->itemHash.insert(newItem->OID, newItem);
     }
 
     //configure table
-    ui->tableWidget->setColumnCount(orderedList.size());
+    ui->tableWidget->setColumnCount(orderedDataList.size()+1);
+    //add hidden index/sufix column
+    ui->tableWidget->setColumnHidden(0, true);
+    ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem("index"));
 
     //add items using the configured order
-    QMapIterator<int, SNMPTableItemReference*> iterator(orderedList);
-    int column = 0;
-    int columnSize = 625/orderedList.size();
-    while (iterator.hasNext()) {
-        iterator.next();
-        SNMPTableItemReference* nextItem = iterator.value();
+    QMapIterator<int, SNMPTableItemReference*> orderedDataListIterator(orderedDataList);
+    int column = 1;
+    int columnSize = 625/orderedDataList.size();
+    while (orderedDataListIterator.hasNext())
+    {
+        orderedDataListIterator.next();
+        SNMPTableItemReference* nextItem = orderedDataListIterator.value();
 
         ui->tableWidget->setHorizontalHeaderItem(column, nextItem->tableItem);
         ui->tableWidget->setColumnWidth(column, columnSize);
@@ -109,6 +135,46 @@ void SNMPTableWindow::configure(QString templateName, QMap<QString, QVariant> te
         this->OIDs.append(nextItem->OID);
         column++;
     }
+    //////////////////////////////////////////////////////////////////////////
+
+
+    // configure context menu //////////////////////////////////////////////////
+    QMap<int, SNMPTableContextMenuReference*> orderedMenuList;
+
+    QMap<QString, QVariant> itemMenuList = templateItems.value("ContextMenu").toMap();
+    QMapIterator<QString, QVariant> itemMenuListIterator(itemMenuList);
+    while (itemMenuListIterator.hasNext())
+    {
+        itemMenuListIterator.next();
+
+        QString itemName = itemMenuListIterator.key();
+        QMap<QString, QVariant> itemValues = itemMenuListIterator.value().toMap();
+        int itemOrder = itemValues.value("Order").toInt();
+        QString type = itemValues.value("Type").toString();
+
+        SNMPTableContextMenuReference* newAction = new SNMPTableContextMenuReference();
+        newAction->menuAction = new QAction(itemName, this);
+        newAction->itemName = itemName;
+        newAction->templateItem = itemValues;
+        if (type == "Graph")
+        {
+            newAction->menuAction->setIcon(this->graphIcon);
+            newAction->itemType = CONTEXTMENU_TYPE_GRAPH;
+        }
+
+        orderedMenuList.insert(itemOrder, newAction);
+        this->menuHash.insert(newAction->menuAction, newAction);
+    }
+
+    QMapIterator<int, SNMPTableContextMenuReference*> orderedMenuListIterator(orderedMenuList);
+    while (orderedMenuListIterator.hasNext())
+    {
+        orderedMenuListIterator.next();
+        SNMPTableContextMenuReference* nextItem = orderedMenuListIterator.value();
+
+        this->contextMenu.addAction(nextItem->menuAction);
+    }
+    ////////////////////////////////////////////////////////////////////////////
 }
 
 void SNMPTableWindow::run(int hostID)
@@ -242,7 +308,8 @@ void SNMPTableWindow::resetValues()
     ui->tableWidget->setRowCount(0);
     //clear items
     QHashIterator<QString, SNMPTableItemReference*> iterator(this->itemHash);
-    while (iterator.hasNext()) {
+    while (iterator.hasNext())
+    {
         iterator.next();
         SNMPTableItemReference* nextItem = iterator.value();
         //keep headers
@@ -278,7 +345,10 @@ void SNMPTableWindow::receiveSNMPReply(SNMPData* data)
                 SNMPVariable nextVariable = returnIterator.next();
                 QString nextSufix = nextVariable.OID.right(nextVariable.OID.size() - this->OIDs.first().size());
 
-                //add first item from snmpwalk
+                //add hidden column for index/sufix
+                ui->tableWidget->setItem(row, 0, new QTableWidgetItem(nextSufix));
+
+                //add first visible column from snmpwalk
                 SNMPTableItemReference* newItem = new SNMPTableItemReference();
                 newItem->OID = nextVariable.OID;
                 newItem->tableItem = new QTableWidgetItem();
@@ -306,7 +376,7 @@ void SNMPTableWindow::receiveSNMPReply(SNMPData* data)
                 else
                     newItem->tableItem->setText(nextVariable.variantValue.toString());
                 //add data to table
-                ui->tableWidget->setItem(row, 0, newItem->tableItem);
+                ui->tableWidget->setItem(row, 1, newItem->tableItem);
                 //add to hashtable
                 this->itemHash.insert(nextVariable.OID, newItem);
 
@@ -327,7 +397,7 @@ void SNMPTableWindow::receiveSNMPReply(SNMPData* data)
                         newItem->valueType = searchItem->valueType;
                     }
                     //add data to table
-                    ui->tableWidget->setItem(row, i, newItem->tableItem);
+                    ui->tableWidget->setItem(row, i+1, newItem->tableItem);
                     //add to hashtable
                     this->itemHash.insert(newItem->OID, newItem);
 
@@ -395,4 +465,51 @@ void SNMPTableWindow::receiveSNMPReply(SNMPData* data)
 void SNMPTableWindow::warn(QString title, QString message)
 {
     QMessageBox::warning(this, title, message);
+}
+
+void SNMPTableWindow::showContextMenu(const QPoint& pos)
+{
+    //get selected row
+    int row = ui->tableWidget->currentRow();
+    if (row >= 0)
+    {
+        //get item information
+        QString index = ui->tableWidget->item(row, 0)->text();
+        QString description = ui->tableWidget->item(row, 1)->text();
+
+        //format description texts
+        QHashIterator<QAction*, SNMPTableContextMenuReference*> iterator(this->menuHash);
+        while (iterator.hasNext())
+        {
+            iterator.next();
+            SNMPTableContextMenuReference* nextItem = iterator.value();
+            if (description.length() <= 50)
+                nextItem->menuAction->setText(nextItem->itemName + " for \"" + description + "\"");
+            else
+                nextItem->menuAction->setText(nextItem->itemName + " for \"" + description.mid(0, 50) + "...\"");
+        }
+
+        //open menu
+        QPoint globalPos = ui->tableWidget->mapToGlobal(pos);
+        QAction* selectedItem = this->contextMenu.exec(globalPos);
+
+        //execute selected item
+        if (selectedItem)
+        {
+            if (this->menuHash.contains(selectedItem))
+            {
+                SNMPTableContextMenuReference* searchItem = this->menuHash.value(selectedItem);
+
+                if (searchItem->itemType == CONTEXTMENU_TYPE_GRAPH)
+                {
+                    SNMPGraphWindow* newSNMPGraphWindow = new SNMPGraphWindow();
+                    newSNMPGraphWindow->configureAndRun(searchItem->itemName + " for \"" + description + "\"",
+                                                        searchItem->templateItem,
+                                                        index,
+                                                        this->lastHostID);
+                    newSNMPGraphWindow->show();
+                }
+            }
+        }
+    }
 }

@@ -7,10 +7,15 @@
 #include <QHostAddress>
 #include <QHostInfo>
 #include <QTableWidgetItem>
+#include <QMenu>
+#include <QAction>
 
 #include "../hoststreeview.h"
 #include "../Net/snmpclient.h"
 #include "../localdata.h"
+#include "snmpgraphwindow.h"
+
+#define CONTEXTMENU_TYPE_GRAPH 0
 
 namespace Ui {
 class SNMPTableWindow;
@@ -23,6 +28,14 @@ struct SNMPTableItemReference
     QTableWidgetItem* tableItem;
     bool valueMapped;
     QString valueType;
+};
+
+struct SNMPTableContextMenuReference
+{
+    QAction* menuAction;
+    QString itemName;
+    QMap<QString, QVariant> templateItem;
+    int itemType;
 };
 
 class SNMPTableWindow : public QWidget, public ISNMPReplyListener
@@ -41,6 +54,7 @@ private slots:
     void run(int hostID);
     void lookupHostReply(QHostInfo);
     void warn(QString title, QString message);
+    void showContextMenu(const QPoint& pos);
 
 private:
     Ui::SNMPTableWindow *ui;
@@ -64,6 +78,9 @@ private:
     bool requestSent;
     int lastHostID;
     SNMPData* SNMPdata = NULL;
+    QMenu contextMenu;
+    QHash<QAction*, SNMPTableContextMenuReference*> menuHash;
+    QIcon graphIcon;
 };
 
 #endif // SNMPTABLEWINDOW_H
