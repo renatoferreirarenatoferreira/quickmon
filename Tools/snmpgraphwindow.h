@@ -38,7 +38,8 @@ public:
     ~SNMPGraphWindow();
     void dragEnterEvent(QDragEnterEvent* event);
     void dropEvent(QDropEvent* event);
-    void configure(QString templateName, QMap<QString, QVariant> templateItems);
+    void configure(QString templateName, QMap<QString, QVariant> templateItems, QString SNMPIndex = "");
+    void configureAndRun(QString templateName, QMap<QString, QVariant> templateItems, QString SNMPIndex, int hostID);
     void receiveSNMPReply(SNMPData* data);
 
 private slots:

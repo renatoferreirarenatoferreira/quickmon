@@ -69,7 +69,7 @@ void SNMPGraphWindow::dropEvent(QDropEvent* event)
     event->acceptProposedAction();
 }
 
-void SNMPGraphWindow::configure(QString templateName, QMap<QString, QVariant> templateItems)
+void SNMPGraphWindow::configure(QString templateName, QMap<QString, QVariant> templateItems, QString SNMPIndex)
 {
     this->setWindowTitle("SNMP Graph: " + templateName);
     ui->labelTemplate->setText(templateName);
@@ -100,6 +100,10 @@ void SNMPGraphWindow::configure(QString templateName, QMap<QString, QVariant> te
         int itemOrder = itemValues.value("Order").toInt();
         QString type = itemValues.value("Type").toString();
         QString calculate = itemValues.value("Calculate").toString();
+
+        //add index if defined
+        if (SNMPIndex.length() > 0)
+            oid.append(SNMPIndex);
 
         SNMPGraphLegendItemReference* newItem = new SNMPGraphLegendItemReference();
         newItem->legendItem = new SNMPGraphLegendItem();
@@ -145,6 +149,14 @@ void SNMPGraphWindow::configure(QString templateName, QMap<QString, QVariant> te
         ui->plotSNMPGraph->yAxis->setTickVector(values);
         ui->plotSNMPGraph->yAxis->setTickVectorLabels(labels);
     }
+}
+
+void SNMPGraphWindow::configureAndRun(QString templateName, QMap<QString, QVariant> templateItems, QString SNMPIndex, int hostID)
+{
+    //configure template
+    this->configure(templateName, templateItems, SNMPIndex);
+    //run for given host
+    QMetaObject::invokeMethod(this, "run", Qt::QueuedConnection, Q_ARG(int, hostID));
 }
 
 void SNMPGraphWindow::run(int hostID)
