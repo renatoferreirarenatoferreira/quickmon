@@ -369,6 +369,8 @@ void SNMPTableWindow::receiveSNMPReply(SNMPData* data)
                 else if (nextVariable.type == SNMPVARIABLE_TYPE_OCTETSTRING)
                     if (newItem->valueType == "Hex")
                         newItem->tableItem->setText(nextVariable.variantValue.toMap().value("hexValue").toString());
+                    else if (newItem->valueType == "DateAndTime")
+                        newItem->tableItem->setText(SNMPClient::readDateAndTime(nextVariable.variantValue.toMap().value("hexValue").toString()));
                     else
                         newItem->tableItem->setText(nextVariable.variantValue.toMap().value("stringValue").toString());
                 else if (nextVariable.type == SNMPVARIABLE_TYPE_INTEGER)
@@ -433,6 +435,8 @@ void SNMPTableWindow::receiveSNMPReply(SNMPData* data)
                     else if (nextVariable.type == SNMPVARIABLE_TYPE_OCTETSTRING)
                         if (searchItem->valueType == "Hex")
                             searchItem->tableItem->setText(nextVariable.variantValue.toMap().value("hexValue").toString());
+                        else if (searchItem->valueType == "DateAndTime")
+                            searchItem->tableItem->setText(SNMPClient::readDateAndTime(nextVariable.variantValue.toMap().value("hexValue").toString()));
                         else
                             searchItem->tableItem->setText(nextVariable.variantValue.toMap().value("stringValue").toString());
                     else if (nextVariable.type == SNMPVARIABLE_TYPE_INTEGER)

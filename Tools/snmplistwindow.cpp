@@ -240,6 +240,8 @@ void SNMPListWindow::receiveSNMPReply(SNMPData* data)
                 else if (nextVariable.type == SNMPVARIABLE_TYPE_OCTETSTRING)
                     if (nextItem->valueType == "Hex")
                         nextItem->listItem->setValue(nextVariable.variantValue.toMap().value("hexValue").toString());
+                    else if (nextItem->valueType == "DateAndTime")
+                        nextItem->listItem->setValue(SNMPClient::readDateAndTime(nextVariable.variantValue.toMap().value("hexValue").toString()));
                     else
                         nextItem->listItem->setValue(nextVariable.variantValue.toMap().value("stringValue").toString());
                 else

@@ -360,6 +360,49 @@ Snmp* SNMPClient::getSNMPv6()
     return this->SNMPv6;
 }
 
+QString SNMPClient::readDateAndTime(QString hexString)
+{
+    QString returnString;
+    QString substring;
+    bool ok;
+
+    //read year
+    substring = hexString.mid(0,2) + hexString.mid(3,2);
+    returnString.append(QString::number(substring.toUInt(&ok, 16)));
+    returnString.append("-");
+
+    //read month
+    substring = hexString.mid(6, 2);
+    returnString.append(QString::number(substring.toUInt(&ok, 16)));
+    returnString.append("-");
+
+    //read day
+    substring = hexString.mid(9, 2);
+    returnString.append(QString::number(substring.toUInt(&ok, 16)));
+    returnString.append(",");
+
+    //read hour
+    substring = hexString.mid(12, 2);
+    returnString.append(QString::number(substring.toUInt(&ok, 16)));
+    returnString.append(":");
+
+    //read minutes
+    substring = hexString.mid(15, 2);
+    returnString.append(QString::number(substring.toUInt(&ok, 16)));
+    returnString.append(":");
+
+    //read seconds
+    substring = hexString.mid(18, 2);
+    returnString.append(QString::number(substring.toUInt(&ok, 16)));
+    returnString.append(".");
+
+    //read deci-seconds
+    substring = hexString.mid(21, 2);
+    returnString.append(QString::number(substring.toUInt(&ok, 16)));
+
+    return returnString;
+}
+
 void callback(int reason, Snmp *snmp, Pdu &pdu, SnmpTarget &target, void *cd)
 {
     SNMPData* data = (SNMPData*) cd;
