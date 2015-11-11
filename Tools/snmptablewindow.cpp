@@ -12,12 +12,6 @@ SNMPTableWindow::SNMPTableWindow(QWidget *parent) :
     //drop behavior
     setAcceptDrops(true);
 
-    //configure context menu
-    ui->tableWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->tableWidget, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
-    //menu icons
-    this->graphIcon.addFile(QStringLiteral(":/Icons/SNMPGraph"), QSize());
-
     //configure selection behavior
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -137,42 +131,52 @@ void SNMPTableWindow::configure(QString templateName, QMap<QString, QVariant> te
     }
     //////////////////////////////////////////////////////////////////////////
 
-
     // configure context menu //////////////////////////////////////////////////
     QMap<int, SNMPTableContextMenuReference*> orderedMenuList;
 
     QMap<QString, QVariant> itemMenuList = templateItems.value("ContextMenu").toMap();
-    QMapIterator<QString, QVariant> itemMenuListIterator(itemMenuList);
-    while (itemMenuListIterator.hasNext())
+    if (itemMenuList.size() > 0)
     {
-        itemMenuListIterator.next();
+        //enable menu
+        ui->tableWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(ui->tableWidget, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
+        //menu icons
+        this->graphIcon.addFile(QStringLiteral(":/Icons/SNMPGraph"), QSize());
 
-        QString itemName = itemMenuListIterator.key();
-        QMap<QString, QVariant> itemValues = itemMenuListIterator.value().toMap();
-        int itemOrder = itemValues.value("Order").toInt();
-        QString type = itemValues.value("Type").toString();
-
-        SNMPTableContextMenuReference* newAction = new SNMPTableContextMenuReference();
-        newAction->menuAction = new QAction(itemName, this);
-        newAction->itemName = itemName;
-        newAction->templateItem = itemValues;
-        if (type == "Graph")
+        //read actions list
+        QMapIterator<QString, QVariant> itemMenuListIterator(itemMenuList);
+        while (itemMenuListIterator.hasNext())
         {
-            newAction->menuAction->setIcon(this->graphIcon);
-            newAction->itemType = CONTEXTMENU_TYPE_GRAPH;
+            itemMenuListIterator.next();
+
+            QString itemName = itemMenuListIterator.key();
+            QMap<QString, QVariant> itemValues = itemMenuListIterator.value().toMap();
+            int itemOrder = itemValues.value("Order").toInt();
+            QString type = itemValues.value("Type").toString();
+
+            SNMPTableContextMenuReference* newAction = new SNMPTableContextMenuReference();
+            newAction->menuAction = new QAction(itemName, this);
+            newAction->itemName = itemName;
+            newAction->templateItem = itemValues;
+            if (type == "Graph")
+            {
+                newAction->menuAction->setIcon(this->graphIcon);
+                newAction->itemType = CONTEXTMENU_TYPE_GRAPH;
+            }
+
+            orderedMenuList.insert(itemOrder, newAction);
+            this->menuHash.insert(newAction->menuAction, newAction);
         }
 
-        orderedMenuList.insert(itemOrder, newAction);
-        this->menuHash.insert(newAction->menuAction, newAction);
-    }
+        //add actions in correct order
+        QMapIterator<int, SNMPTableContextMenuReference*> orderedMenuListIterator(orderedMenuList);
+        while (orderedMenuListIterator.hasNext())
+        {
+            orderedMenuListIterator.next();
+            SNMPTableContextMenuReference* nextItem = orderedMenuListIterator.value();
 
-    QMapIterator<int, SNMPTableContextMenuReference*> orderedMenuListIterator(orderedMenuList);
-    while (orderedMenuListIterator.hasNext())
-    {
-        orderedMenuListIterator.next();
-        SNMPTableContextMenuReference* nextItem = orderedMenuListIterator.value();
-
-        this->contextMenu.addAction(nextItem->menuAction);
+            this->contextMenu.addAction(nextItem->menuAction);
+        }
     }
     ////////////////////////////////////////////////////////////////////////////
 }
