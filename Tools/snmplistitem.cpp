@@ -5,8 +5,8 @@ SNMPListItem::SNMPListItem(QWidget *parent) : QWidget(parent)
     this->mainLayout.setMargin(0);
     this->mainLayout.setSpacing(0);
 
-    this->labelKey.setMaximumWidth(80);
-    this->labelKey.setMinimumWidth(80);
+    this->labelKey.setMaximumWidth(160);
+    this->labelKey.setMinimumWidth(160);
     this->labelKey.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
     this->labelKey.setAlignment(Qt::AlignRight);
     this->labelKey.setCursor(Qt::IBeamCursor);
@@ -20,8 +20,8 @@ SNMPListItem::SNMPListItem(QWidget *parent) : QWidget(parent)
     this->labelSeparator.setStyleSheet("color: rgb(28, 28, 28);");
     this->labelSeparator.setText(":");
 
-    this->labelValue.setMaximumWidth(304);
-    this->labelValue.setMinimumWidth(304);
+    this->labelValue.setMaximumWidth(424);
+    this->labelValue.setMinimumWidth(424);
     this->labelValue.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
     this->labelValue.setAlignment(Qt::AlignLeft);
     this->labelValue.setCursor(Qt::IBeamCursor);
