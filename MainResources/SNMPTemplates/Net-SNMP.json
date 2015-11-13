@@ -1,0 +1,98 @@
+{
+    "CPU Usage (% Last Minute)": {
+        "Order": 0,
+        "Type": "Graph",
+        "Unit": "%",
+        "Items": {
+            "ssCpuUser": {
+                "Order": 0,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.2021.11.9.0"
+            },
+            "ssCpuSystem": {
+                "Order": 1,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.2021.11.10.0"
+            },
+            "ssCpuIdle": {
+                "Order": 2,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.2021.11.11.0"
+            }
+        }
+    },
+    "Load Average": {
+        "Order": 1,
+        "Type": "Graph",
+        "Items": {
+            "1 Minute": {
+                "Order": 0,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.2021.10.1.5.1",
+                "Calculate": "/100"
+            },
+            "5 Minutes": {
+                "Order": 1,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.2021.10.1.5.2",
+                "Calculate": "/100"
+            },
+            "15 Minutes": {
+                "Order": 2,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.2021.10.1.5.3",
+                "Calculate": "/100"
+            }
+        }
+
+    },
+    "Memory": {
+        "Order": 2,
+        "Type": "Graph",
+        "Unit": "B",
+        "Items": {
+            "memTotalSwap": {
+                "Order": 0,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.2021.4.3.0",
+                "Calculate": "*1024"
+            },
+            "memAvailSwap": {
+                "Order": 1,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.2021.4.4.0",
+                "Calculate": "*1024"
+            },
+            "memTotalReal": {
+                "Order": 2,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.2021.4.5.0",
+                "Calculate": "*1024"
+            },
+            "memAvailReal": {
+                "Order": 3,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.2021.4.6.0",
+                "Calculate": "*1024"
+            },
+            "memShared": {
+                "Order": 4,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.2021.4.13.0",
+                "Calculate": "*1024"
+            },
+            "memBuffer": {
+                "Order": 5,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.2021.4.14.0",
+                "Calculate": "*1024"
+            },
+            "memCached": {
+                "Order": 6,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.2021.4.15.0",
+                "Calculate": "*1024"
+            }
+        }
+    }
+}

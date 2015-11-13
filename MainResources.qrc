@@ -16,5 +16,6 @@
     <qresource prefix="/SNMPTemplates">
         <file alias="List">MainResources/SNMPTemplates/List.json</file>
         <file alias="StandardMibs">MainResources/SNMPTemplates/StandardMibs.json</file>
+        <file alias="Net-SNMP">MainResources/SNMPTemplates/Net-SNMP.json</file>
     </qresource>
 </RCC>
