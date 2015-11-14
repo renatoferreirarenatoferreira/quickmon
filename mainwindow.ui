@@ -82,7 +82,7 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>200</height>
+            <height>100</height>
            </size>
           </property>
           <property name="styleSheet">
@@ -274,7 +274,7 @@ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #DADADA, stop:0.4 #4C
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>105</height>
+            <height>100</height>
            </size>
           </property>
           <property name="styleSheet">
