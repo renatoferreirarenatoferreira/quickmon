@@ -367,10 +367,8 @@ void SNMPTableWindow::receiveSNMPReply(SNMPData* data)
                 if (newItem->valueMapped)
                     newItem->tableItem->setText(this->clientInstance->mapValue(newItem->baseOID, nextVariable.variantValue.toString()));
                 else if (nextVariable.type == SNMPVARIABLE_TYPE_OCTETSTRING)
-                    if (newItem->valueType == "Hex")
-                        newItem->tableItem->setText(nextVariable.variantValue.toMap().value("hexValue").toString());
-                    else if (newItem->valueType == "DateAndTime")
-                        newItem->tableItem->setText(SNMPClient::readDateAndTime(nextVariable.variantValue.toMap().value("hexValue").toString()));
+                    if (newItem->valueType.size() > 0)
+                        newItem->tableItem->setText(SNMPTextualConventions::parseString(newItem->valueType, nextVariable.variantValue));
                     else
                         newItem->tableItem->setText(nextVariable.variantValue.toMap().value("stringValue").toString());
                 else if (nextVariable.type == SNMPVARIABLE_TYPE_INTEGER)
@@ -433,10 +431,8 @@ void SNMPTableWindow::receiveSNMPReply(SNMPData* data)
                     if (searchItem->valueMapped)
                         searchItem->tableItem->setText(this->clientInstance->mapValue(searchItem->baseOID, nextVariable.variantValue.toString()));
                     else if (nextVariable.type == SNMPVARIABLE_TYPE_OCTETSTRING)
-                        if (searchItem->valueType == "Hex")
-                            searchItem->tableItem->setText(nextVariable.variantValue.toMap().value("hexValue").toString());
-                        else if (searchItem->valueType == "DateAndTime")
-                            searchItem->tableItem->setText(SNMPClient::readDateAndTime(nextVariable.variantValue.toMap().value("hexValue").toString()));
+                        if (searchItem->valueType.size() > 0)
+                            searchItem->tableItem->setText(SNMPTextualConventions::parseString(searchItem->valueType, nextVariable.variantValue));
                         else
                             searchItem->tableItem->setText(nextVariable.variantValue.toMap().value("stringValue").toString());
                     else if (nextVariable.type == SNMPVARIABLE_TYPE_INTEGER)

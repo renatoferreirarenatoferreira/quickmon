@@ -14,6 +14,7 @@
 #include "../Net/snmpclient.h"
 #include "../localdata.h"
 #include "snmpgraphwindow.h"
+#include "../Utils/snmptextualconventions.h"
 
 #define CONTEXTMENU_TYPE_GRAPH 0
 

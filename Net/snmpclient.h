@@ -126,7 +126,6 @@ public:
     static void stopListening(SNMPData* data);
     Snmp* getSNMPv4();
     Snmp* getSNMPv6();
-    static QString readDateAndTime(QString hexString);
 
 private:
     static SNMPClient* m_Instance;

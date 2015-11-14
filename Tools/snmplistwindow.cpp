@@ -238,10 +238,8 @@ void SNMPListWindow::receiveSNMPReply(SNMPData* data)
                 if (nextItem->valueMapped)
                     nextItem->listItem->setValue(this->clientInstance->mapValue(nextVariable.OID, nextVariable.variantValue.toString()));
                 else if (nextVariable.type == SNMPVARIABLE_TYPE_OCTETSTRING)
-                    if (nextItem->valueType == "Hex")
-                        nextItem->listItem->setValue(nextVariable.variantValue.toMap().value("hexValue").toString());
-                    else if (nextItem->valueType == "DateAndTime")
-                        nextItem->listItem->setValue(SNMPClient::readDateAndTime(nextVariable.variantValue.toMap().value("hexValue").toString()));
+                    if (nextItem->valueType.size() > 0)
+                        nextItem->listItem->setValue(SNMPTextualConventions::parseString(nextItem->valueType, nextVariable.variantValue));
                     else
                         nextItem->listItem->setValue(nextVariable.variantValue.toMap().value("stringValue").toString());
                 else

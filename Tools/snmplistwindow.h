@@ -13,6 +13,7 @@
 #include "../hoststreeview.h"
 #include "../Net/snmpclient.h"
 #include "../localdata.h"
+#include "../Utils/snmptextualconventions.h"
 
 namespace Ui {
 class SNMPListWindow;
