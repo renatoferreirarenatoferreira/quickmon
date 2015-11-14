@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     Net/snmpclient.cpp \
     Tools/snmplistitem.cpp \
     Tools/snmpgraphlegenditem.cpp \
-    Tools/snmpstatistics.cpp
+    Tools/snmpstatistics.cpp \
+    Utils/snmptextualconventions.cpp
 
 HEADERS  += mainwindow.h \
     localdata.h \
@@ -55,7 +56,8 @@ HEADERS  += mainwindow.h \
     Net/snmpclient.h \
     Tools/snmplistitem.h \
     Tools/snmpgraphlegenditem.h \
-    Tools/snmpstatistics.h
+    Tools/snmpstatistics.h \
+    Utils/snmptextualconventions.h
 
 FORMS    += mainwindow.ui \
     hosteditor.ui \
