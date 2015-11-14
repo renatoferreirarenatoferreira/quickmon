@@ -3,6 +3,7 @@
         "Order": 0,
         "Type": "Graph",
         "Unit": "%",
+        "Interval": 5000,
         "Items": {
             "ssCpuUser": {
                 "Order": 0,
@@ -24,6 +25,7 @@
     "Load Average": {
         "Order": 1,
         "Type": "Graph",
+        "Interval": 5000,
         "Items": {
             "1 Minute": {
                 "Order": 0,
@@ -50,6 +52,7 @@
         "Order": 2,
         "Type": "Graph",
         "Unit": "B",
+        "Interval": 5000,
         "Items": {
             "memTotalSwap": {
                 "Order": 0,
