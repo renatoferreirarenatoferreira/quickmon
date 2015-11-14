@@ -1,0 +1,638 @@
+{
+    "General Information": {
+        "Type": "List",
+        "Order": 0,
+        "Items": {
+            "Platform Name": {
+                "OID": "1.3.6.1.4.1.3375.2.1.3.5.1.0",
+                "Order": 0
+            },
+            "Marketing Name": {
+                "OID": "1.3.6.1.4.1.3375.2.1.3.5.2.0",
+                "Order": 1
+            },
+            "Serial Number": {
+                "OID": "1.3.6.1.4.1.3375.2.1.3.3.3.0",
+                "Order": 2
+            },
+            "Product Name": {
+                "OID": "1.3.6.1.4.1.3375.2.1.4.1.0",
+                "Order": 3
+            },
+            "Product Version": {
+                "OID": "1.3.6.1.4.1.3375.2.1.4.2.0",
+                "Order": 4
+            },
+            "Product Edition": {
+                "OID": "1.3.6.1.4.1.3375.2.1.4.4.0",
+                "Order": 5
+            },
+            "Host Name": {
+                "OID": "1.3.6.1.4.1.3375.2.1.6.2.0",
+                "Order": 6
+            },
+            "System Uptime": {
+                "OID": "1.3.6.1.4.1.3375.2.1.6.6.0",
+                "Order": 7
+            },
+            "Failover Status": {
+                "OID": "1.3.6.1.4.1.3375.2.1.14.3.1.0",
+                "Order": 8,
+                "ValueMappings": {
+                    "0": "unknown(0)",
+                    "1": "offline(1)",
+                    "2": "forcedOffline(2)",
+                    "3": "standby(3)",
+                    "4": "active(4)"
+                }
+            },
+            "Sync Status": {
+                "OID": "1.3.6.1.4.1.3375.2.1.14.1.1.0",
+                "Order": 9,
+                "ValueMappings": {
+                    "0": "unknown(0)",
+                    "1": "syncing(1)",
+                    "2": "needManualSync(2)",
+                    "3": "inSync(3)",
+                    "4": "syncFailed(4)",
+                    "5": "syncDisconnected(5)",
+                    "6": "standalone(6)",
+                    "7": "awaitingInitialSync(7)",
+                    "8": "incompatibleVersion(8)",
+                    "9": "partialSync(9)"
+                }
+            }
+        }
+    },
+    "System CPU Usage": {
+        "Order": 1,
+        "Type": "Graph",
+        "Unit": "%",
+        "Interval": 5000,
+        "Items": {
+            "System CPU Usage": {
+                "Order": 0,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.20.21.0"
+            }
+        }
+    },
+    "CPU Cores": {
+        "Type": "Table",
+        "Order": 2,
+        "Items": {
+            "CPU": {
+                "OID": "1.3.6.1.4.1.3375.2.1.7.5.2.1.3",
+                "Order": 0
+            },
+            "Slot": {
+                "OID": "1.3.6.1.4.1.3375.2.1.7.5.2.1.40",
+                "Order": 1
+            }
+        },
+        "ContextMenu": {
+            "CPU Core Usage": {
+                "Order": 0,
+                "Type": "Graph",
+                "Unit": "%",
+                "Interval": 5000,
+                "Items": {
+                    "CPU Core Usage": {
+                        "Order": 0,
+                        "OID": "1.3.6.1.4.1.3375.2.1.7.5.2.1.19"
+                    }
+                }
+            }
+        }
+    },
+    "Memory Used": {
+        "Order": 3,
+        "Type": "Graph",
+        "Unit": "B",
+        "Interval": 5000,
+        "Items": {
+            "Total Phys Memory": {
+                "Order": 0,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.3375.2.1.7.1.1.0"
+            },
+            "TMM Used Memory": {
+                "Order": 1,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.1.45.0"
+            },
+            "TMM Alloc Memory": {
+                "Order": 2,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.1.44.0"
+            },
+            "OS Used Swap": {
+                "Order": 3,
+                "Type": "Int",
+                "OID": "1.3.6.1.2.1.25.2.3.1.6.10",
+                "Calculate": "/1024"
+            },
+            "OS Used Memory": {
+                "Order": 4,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.3375.2.1.7.1.2.0"
+            }
+        }
+    },
+    "Network Interfaces": {
+        "Order": 4,
+        "Type": "Table",
+        "Items": {
+            "Name": {
+                "OID": "1.3.6.1.4.1.3375.2.1.2.4.1.2.1.1",
+                "Order": 0
+            },
+            "MAC Address": {
+                "OID": "1.3.6.1.4.1.3375.2.1.2.4.1.2.1.6",
+                "Order": 1,
+                "Type": "Hex"
+            },
+            "Media Speed": {
+                "OID": "1.3.6.1.4.1.3375.2.1.2.4.1.2.1.4",
+                "Order": 2
+            },
+            "Media Duplex": {
+                "OID": "1.3.6.1.4.1.3375.2.1.2.4.1.2.1.5",
+                "Order": 3,
+                "ValueMappings": {
+                    "0": "none(0)",
+                    "1": "half(1)",
+                    "2": "full(2)"
+                }
+            },
+            "Enabled": {
+                "OID": "1.3.6.1.4.1.3375.2.1.2.4.1.2.1.8",
+                "Order": 4,
+                "ValueMappings": {
+                    "0": "false(0)",
+                    "1": "true(1)"
+                }
+            },
+            "Status": {
+                "OID": "1.3.6.1.4.1.3375.2.1.2.4.1.2.1.17",
+                "Order": 5,
+                "ValueMappings": {
+                    "0": "up(0)",
+                    "1": "down(1)",
+                    "3": "uninitialized(3)",
+                    "5": "unpopulated(5)"
+                }
+            }
+        },
+        "ContextMenu": {
+            "Interface Traffic": {
+                "Order": 0,
+                "Type": "Graph",
+                "Unit": "bps",
+                "Interval": 5000,
+                "Items": {
+                    "Incoming": {
+                        "Order": 0,
+                        "Type": "CounterPerSecond",
+                        "Calculate": "*8",
+                        "OID": "1.3.6.1.4.1.3375.2.1.2.4.4.3.1.3"
+                    },
+                    "Outgoing": {
+                        "Order": 1,
+                        "Type": "CounterPerSecond",
+                        "Calculate": "*8",
+                        "OID": "1.3.6.1.4.1.3375.2.1.2.4.4.3.1.5"
+                    }
+                }
+            },
+            "Packets Rate": {
+                "Order": 1,
+                "Type": "Graph",
+                "Unit": "pps",
+                "Interval": 5000,
+                "Items": {
+                    "Incoming": {
+                        "Order": 0,
+                        "Type": "CounterPerSecond",
+                        "OID": "1.3.6.1.4.1.3375.2.1.2.4.4.3.1.2"
+                    },
+                    "Outgoing": {
+                        "Order": 1,
+                        "Type": "CounterPerSecond",
+                        "OID": "1.3.6.1.4.1.3375.2.1.2.4.4.3.1.4"
+                    }
+                }
+            },
+            "Errors": {
+                "Order": 2,
+                "Type": "Graph",
+                "Unit": "pps",
+                "Interval": 5000,
+                "Items": {
+                    "Inbound Drops": {
+                        "Order": 0,
+                        "Type": "CounterPerSecond",
+                        "OID": "1.3.6.1.4.1.3375.2.1.2.4.4.3.1.10"
+                    },
+                    "Outbound Drops": {
+                        "Order": 1,
+                        "Type": "CounterPerSecond",
+                        "OID": "1.3.6.1.4.1.3375.2.1.2.4.4.3.1.11"
+                    },
+                    "Inbound Errors": {
+                        "Order": 2,
+                        "Type": "CounterPerSecond",
+                        "OID": "1.3.6.1.4.1.3375.2.1.2.4.4.3.1.8"
+                    },
+                    "Outbound Errors": {
+                        "Order": 3,
+                        "Type": "CounterPerSecond",
+                        "OID": "1.3.6.1.4.1.3375.2.1.2.4.4.3.1.9"
+                    },
+                    "Colisions": {
+                        "Order": 4,
+                        "Type": "CounterPerSecond",
+                        "OID": "1.3.6.1.4.1.3375.2.1.2.4.4.3.1.12"
+                    }
+                }
+            }
+        }
+    },
+    "Throughput": {
+        "Order": 5,
+        "Type": "Graph",
+        "Unit": "bps",
+        "Interval": 5000,
+        "Items": {
+            "Client In": {
+                "Order": 0,
+                "Type": "CounterPerSecond",
+                "Calculate": "*8",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.1.3.0"
+            },
+            "Client Out": {
+                "Order": 1,
+                "Type": "CounterPerSecond",
+                "Calculate": "*8",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.1.5.0"
+            },
+            "Server In": {
+                "Order": 2,
+                "Type": "CounterPerSecond",
+                "Calculate": "*8",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.1.10.0"
+            },
+            "Server Out": {
+                "Order": 3,
+                "Type": "CounterPerSecond",
+                "Calculate": "*8",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.1.12.0"
+            }
+        }
+    },
+    "Connections": {
+        "Order": 6,
+        "Type": "Graph",
+        "Interval": 5000,
+        "Items": {
+            "Client": {
+                "Order": 0,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.1.8.0"
+            },
+            "Server": {
+                "Order": 1,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.1.15.0"
+            },
+            "Client PVA": {
+                "Order": 2,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.1.22.0"
+            },
+            "Server PVA": {
+                "Order": 3,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.1.29.0"
+            },
+            "Client SSL": {
+                "Order": 4,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.9.2.0"
+            },
+            "Server SSL": {
+                "Order": 5,
+                "Type": "Int",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.10.2.0"
+            }
+        }
+    },
+    "SSL Transactions": {
+        "Order": 7,
+        "Type": "Graph",
+        "Interval": 5000,
+        "Unit": "tps",
+        "Items": {
+            "Client Native": {
+                "Order": 0,
+                "Type": "CounterPerSecond",
+                "OID": "11.3.6.1.4.1.3375.2.1.1.2.9.6.0"
+            },
+            "Client Compat": {
+                "Order": 1,
+                "Type": "CounterPerSecond",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.9.9.0"
+            },
+            "Server Native": {
+                "Order": 2,
+                "Type": "CounterPerSecond",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.10.6.0"
+            },
+            "Server Compat": {
+                "Order": 3,
+                "Type": "CounterPerSecond",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.10.9.0"
+            }
+        }
+    },
+    "HTTP Requests": {
+        "Order": 8,
+        "Type": "Graph",
+        "Unit": "rps",
+        "Interval": 5000,
+        "Items": {
+            "HTTP Requests": {
+                "Order": 0,
+                "Type": "CounterPerSecond",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.1.56.0"
+            }
+        }
+    },
+    "HTTP Compression Rate": {
+        "Order": 9,
+        "Type": "Graph",
+        "Unit": "bps",
+        "Interval": 5000,
+        "Items": {
+            "Bits Before Compression": {
+                "Order": 0,
+                "Type": "CounterPerSecond",
+                "Calculate": "*8",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.22.2.0"
+            },
+            "Bits After Compression": {
+                "Order": 1,
+                "Type": "CounterPerSecond",
+                "Calculate": "*8",
+                "OID": "1.3.6.1.4.1.3375.2.1.1.2.22.3.0"
+            }
+        }
+    },
+    "LTM - Virtual Servers": {
+        "Type": "Table",
+        "Order": 10,
+        "Items": {
+            "Name": {
+                "OID": "1.3.6.1.4.1.3375.2.2.10.1.2.1.1",
+                "Order": 0
+            },
+            "Address": {
+                "OID": "1.3.6.1.4.1.3375.2.2.10.1.2.1.3",
+                "Order": 1,
+                "Type": "F5IPAddress"
+            },
+            "Port": {
+                "OID": "1.3.6.1.4.1.3375.2.2.10.1.2.1.6",
+                "Order": 2
+            },
+            "Protocol": {
+                "OID": "1.3.6.1.4.1.3375.2.2.10.1.2.1.7",
+                "Order": 3,
+                "ValueMappings": {
+                    "6": "TCP",
+                    "17": "UDP"
+                }
+            },
+            "Enabled": {
+                "OID": "1.3.6.1.4.1.3375.2.2.10.13.2.1.3",
+                "Order": 4,
+                "ValueMappings": {
+                    "0": "false(0)",
+                    "1": "true(1)"
+                }
+            },
+            "Availability": {
+                "OID": "1.3.6.1.4.1.3375.2.2.10.13.2.1.2",
+                "Order": 5,
+                "ValueMappings": {
+                    "0": "none(0)",
+                    "1": "green(1)",
+                    "2": "yellow(2)",
+                    "3": "red(3)",
+                    "4": "blue(4)",
+                    "5": "gray(5)"
+                }
+            }
+        },
+        "ContextMenu": {
+            "Connections": {
+                "Order": 0,
+                "Type": "Graph",
+                "Interval": 5000,
+                "Items": {
+                    "Connections": {
+                        "Order": 0,
+                        "OID": "1.3.6.1.4.1.3375.2.2.10.2.3.1.12"
+                    }
+                }
+            },
+            "Traffic": {
+                "Order": 1,
+                "Type": "Graph",
+                "Unit": "bps",
+                "Interval": 5000,
+                "Items": {
+                    "Incoming": {
+                        "Order": 0,
+                        "Type": "CounterPerSecond",
+                        "Calculate": "*8",
+                        "OID": "1.3.6.1.4.1.3375.2.2.10.2.3.1.7"
+                    },
+                    "Outgoing": {
+                        "Order": 1,
+                        "Type": "CounterPerSecond",
+                        "Calculate": "*8",
+                        "OID": "1.3.6.1.4.1.3375.2.2.10.2.3.1.9"
+                    }
+                }
+            }
+        }
+    },
+    "LTM - Pools": {
+        "Type": "Table",
+        "Order": 11,
+        "Items": {
+            "Name": {
+                "OID": "1.3.6.1.4.1.3375.2.2.5.1.2.1.1",
+                "Order": 0
+            },
+            "Monitors": {
+                "OID": "1.3.6.1.4.1.3375.2.2.5.1.2.1.17",
+                "Order": 1
+            },
+            "LB Method": {
+                "OID": "1.3.6.1.4.1.3375.2.2.5.1.2.1.2",
+                "Order": 2,
+                "ValueMappings": {
+                    "0": "roundRobin(0)",
+                    "1": "ratioMember(1)",
+                    "2": "leastConnMember(2)",
+                    "3": "observedMember(3)",
+                    "4": "predictiveMember(4)",
+                    "5": "ratioNodeAddress(5)",
+                    "6": "leastConnNodeAddress(6)",
+                    "7": "fastestNodeAddress(7)",
+                    "8": "observedNodeAddress(8)",
+                    "9": "predictiveNodeAddress(9)",
+                    "10": "dynamicRatio(10)",
+                    "11": "fastestAppResponse(11)",
+                    "12": "leastSessions(12)",
+                    "13": "dynamicRatioMember(13)",
+                    "14": "l3Addr(14)",
+                    "15": "weightedLeastConnMember(15)",
+                    "16": "weightedLeastConnNodeAddr(16)",
+                    "17": "ratioSession(17)"
+                }
+            },
+            "Active Members": {
+                "OID": "1.3.6.1.4.1.3375.2.2.5.1.2.1.8",
+                "Order": 3
+            },
+            "Enabled": {
+                "OID": "1.3.6.1.4.1.3375.2.2.5.5.2.1.3",
+                "Order": 4,
+                "ValueMappings": {
+                    "0": "none(0)",
+                    "1": "enabled(1)",
+                    "2": "disabled(2)",
+                    "3": "disabledbyparent(3)"
+                }
+            },
+            "Availability": {
+                "OID": "1.3.6.1.4.1.3375.2.2.5.5.2.1.2",
+                "Order": 5,
+                "ValueMappings": {
+                    "0": "none(0)",
+                    "1": "green(1)",
+                    "2": "yellow(2)",
+                    "3": "red(3)",
+                    "4": "blue(4)",
+                    "5": "gray(5)"
+                }
+            }
+        },
+        "ContextMenu": {
+            "Connections": {
+                "Order": 0,
+                "Type": "Graph",
+                "Interval": 5000,
+                "Items": {
+                    "Connections": {
+                        "Order": 0,
+                        "OID": "1.3.6.1.4.1.3375.2.2.5.2.3.1.8"
+                    }
+                }
+            },
+            "Traffic": {
+                "Order": 1,
+                "Type": "Graph",
+                "Unit": "bps",
+                "Interval": 5000,
+                "Items": {
+                    "Incoming": {
+                        "Order": 0,
+                        "Type": "CounterPerSecond",
+                        "Calculate": "*8",
+                        "OID": "1.3.6.1.4.1.3375.2.2.5.2.3.1.3"
+                    },
+                    "Outgoing": {
+                        "Order": 1,
+                        "Type": "CounterPerSecond",
+                        "Calculate": "*8",
+                        "OID": "1.3.6.1.4.1.3375.2.2.5.2.3.1.5"
+                    }
+                }
+            }
+        }
+    },
+    "LTM - Nodes": {
+        "Type": "Table",
+        "Order": 12,
+        "Items": {
+            "Name": {
+                "OID": "1.3.6.1.4.1.3375.2.2.4.1.2.1.17",
+                "Order": 0
+            },
+            "Address": {
+                "OID": "1.3.6.1.4.1.3375.2.2.4.1.2.1.2",
+                "Order": 1,
+                "Type": "F5IPAddress"
+            },
+            "Enabled": {
+                "OID": "1.3.6.1.4.1.3375.2.2.4.3.2.1.4",
+                "Order": 2,
+                "ValueMappings": {
+                    "0": "none(0)",
+                    "1": "enabled(1)",
+                    "2": "disabled(2)",
+                    "3": "disabledbyparent(3)"
+                }
+            },
+            "Availability": {
+                "OID": "1.3.6.1.4.1.3375.2.2.4.3.2.1.3",
+                "Order": 3,
+                "ValueMappings": {
+                    "0": "none(0)",
+                    "1": "green(1)",
+                    "2": "yellow(2)",
+                    "3": "red(3)",
+                    "4": "blue(4)",
+                    "5": "gray(5)"
+                }
+            }
+        },
+        "ContextMenu": {
+            "Connections": {
+                "Order": 0,
+                "Type": "Graph",
+                "Interval": 5000,
+                "Items": {
+                    "Connections": {
+                        "Order": 0,
+                        "OID": "1.3.6.1.4.1.3375.2.2.4.2.3.1.9"
+                    }
+                }
+            },
+            "Traffic": {
+                "Order": 1,
+                "Type": "Graph",
+                "Unit": "bps",
+                "Interval": 5000,
+                "Items": {
+                    "Incoming": {
+                        "Order": 0,
+                        "Type": "CounterPerSecond",
+                        "Calculate": "*8",
+                        "OID": "1.3.6.1.4.1.3375.2.2.4.2.3.1.4"
+                    },
+                    "Outgoing": {
+                        "Order": 1,
+                        "Type": "CounterPerSecond",
+                        "Calculate": "*8",
+                        "OID": "1.3.6.1.4.1.3375.2.2.4.2.3.1.6"
+                    }
+                }
+            }
+        }
+    }
+}

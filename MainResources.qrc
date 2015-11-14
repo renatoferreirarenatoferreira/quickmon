@@ -17,5 +17,6 @@
         <file alias="List">MainResources/SNMPTemplates/List.json</file>
         <file alias="StandardMibs">MainResources/SNMPTemplates/StandardMibs.json</file>
         <file alias="Net-SNMP">MainResources/SNMPTemplates/Net-SNMP.json</file>
+        <file alias="F5_BIG-IP">MainResources/SNMPTemplates/F5_BIG-IP.json</file>
     </qresource>
 </RCC>

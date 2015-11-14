@@ -6,5 +6,9 @@
     "Net-SNMP": {
         "Order": 1,
         "File": ":/SNMPTemplates/Net-SNMP"
+    },
+    "F5 BIG-IP": {
+        "Order": 2,
+        "File": ":/SNMPTemplates/F5_BIG-IP"
     }
 }
