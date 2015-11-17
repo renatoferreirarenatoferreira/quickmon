@@ -18,6 +18,11 @@
 #define STYLE_LEGEND_7 "background: rgb(0, 0, 61);"
 #define STYLE_LEGEND_8 "background: rgb(148, 148, 148);"
 
+#define LEGEND_SCALE_PERCENT 0
+#define LEGEND_SCALE_BYTE 1
+#define LEGEND_SCALE_BPS 2
+#define LEGEND_SCALE_OTHER 3
+
 class SNMPGraphLegendItem : public QWidget
 {
     Q_OBJECT
@@ -46,7 +51,7 @@ private:
     QLabel maxLabel;
     QColor legendColor;
     QString unit;
-    bool formatAsBytes;
+    int scale;
     QString formatValue(double value);
 };
 

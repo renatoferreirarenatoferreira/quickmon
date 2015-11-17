@@ -136,7 +136,14 @@ void SNMPGraphLegendItem::configure(int lineNumber, QString key, QString unit)
             break;
     }
 
-    this->formatAsBytes = (this->unit == "B");
+    if (this->unit == "%")
+        this->scale = LEGEND_SCALE_PERCENT;
+    else if (this->unit == "B")
+        this->scale = LEGEND_SCALE_BYTE;
+    else if (this->unit == "bps")
+        this->scale = LEGEND_SCALE_BPS;
+    else
+        this->scale = LEGEND_SCALE_OTHER;
 
     this->reset();
 }
@@ -156,7 +163,7 @@ void SNMPGraphLegendItem::updateLegend(double lastValue, double averageValue, do
 
 QString SNMPGraphLegendItem::formatValue(double value)
 {
-    if (this->formatAsBytes)
+    if (this->scale == LEGEND_SCALE_BYTE)
         if (value >= 1073741824000)
             return QString::number((double)value/1073741824000, 'f', 1).append('T').append(this->unit);
         else if (value >= 1073741824)
@@ -171,7 +178,7 @@ QString SNMPGraphLegendItem::formatValue(double value)
         if (value >= 1000000000000)
             return QString::number((double)value/1000000000000, 'f', 1).append('T').append(this->unit);
         else if (value >= 1000000000)
-            return QString::number((double)value/1000000000, 'f', 1).append('B').append(this->unit);
+            return QString::number((double)value/1000000000, 'f', 1).append((this->scale == LEGEND_SCALE_BPS?'G':'B')).append(this->unit);  //use Giga or Billions
         else if (value >= 1000000)
             return QString::number((double)value/1000000, 'f', 1).append('M').append(this->unit);
         else if (value >= 1000)

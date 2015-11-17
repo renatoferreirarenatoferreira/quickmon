@@ -13,9 +13,10 @@
 #include "../localdata.h"
 #include "snmpstatistics.h"
 
-#define SCALE_PERCENT 0
-#define SCALE_BYTE 1
-#define SCALE_OTHER 2
+#define GRAPH_SCALE_PERCENT 0
+#define GRAPH_SCALE_BYTE 1
+#define GRAPH_SCALE_BPS 2
+#define GRAPH_SCALE_OTHER 3
 
 namespace Ui {
 class SNMPGraphWindow;

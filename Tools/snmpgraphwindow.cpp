@@ -77,11 +77,13 @@ void SNMPGraphWindow::configure(QString templateName, QMap<QString, QVariant> te
     this->templateName = templateName;
     this->unit = templateItems.value("Unit").toString();
     if (this->unit == "%")
-        this->scale = SCALE_PERCENT;
+        this->scale = GRAPH_SCALE_PERCENT;
     else if (this->unit == "B")
-        this->scale = SCALE_BYTE;
+        this->scale = GRAPH_SCALE_BYTE;
+    else if (this->unit == "bps")
+        this->scale = GRAPH_SCALE_BPS;
     else
-        this->scale = SCALE_OTHER;
+        this->scale = GRAPH_SCALE_OTHER;
     this->interval = templateItems.value("Interval").toInt();
     if (this->interval < 1000)
         this->interval = 1000;
@@ -136,7 +138,7 @@ void SNMPGraphWindow::configure(QString templateName, QMap<QString, QVariant> te
     //format plot
     ui->plotSNMPGraph->xAxis->setTickStep(this->interval/40);
     ui->plotSNMPGraph->yAxis->setAutoTickLabels(false);
-    if (this->scale == SCALE_PERCENT)
+    if (this->scale == GRAPH_SCALE_PERCENT)
     {
         ui->plotSNMPGraph->yAxis->setRangeUpper(100);
         ui->plotSNMPGraph->yAxis->setRangeLower(0);
@@ -330,7 +332,7 @@ void SNMPGraphWindow::updateUI(int responseStatus, QString errorMessage, QList<S
                     //update graph
                     ui->plotSNMPGraph->graph(searchItem->graphIndex)->addData(plotKey, searchItem->statistics->lastValue());
                     //get max value for y axis scale
-                    if (this->scale != SCALE_PERCENT && upper < searchItem->statistics->maxValue())
+                    if (this->scale != GRAPH_SCALE_PERCENT && upper < searchItem->statistics->maxValue())
                         upper = searchItem->statistics->maxValue();
                 } else {
                     //add blank value to graph
@@ -343,7 +345,7 @@ void SNMPGraphWindow::updateUI(int responseStatus, QString errorMessage, QList<S
         }
 
         //calculate scale
-        if (this->scale == SCALE_PERCENT)
+        if (this->scale == GRAPH_SCALE_PERCENT)
         {
             //fixed scale for percent
             ui->plotSNMPGraph->yAxis->setRangeUpper(100);
@@ -356,7 +358,7 @@ void SNMPGraphWindow::updateUI(int responseStatus, QString errorMessage, QList<S
             //calculate simplifiers
             quint64 scaleDivisor = 1;
             QString scaleUnit;
-            if (this->scale == SCALE_BYTE)
+            if (this->scale == GRAPH_SCALE_BYTE)
             {
                 if (upper >= 1073741824000)
                 {
@@ -387,7 +389,7 @@ void SNMPGraphWindow::updateUI(int responseStatus, QString errorMessage, QList<S
                 else if (upper >= 1000000000)
                 {
                     scaleDivisor = 1000000000;
-                    scaleUnit = 'G';
+                    scaleUnit = (this->scale == GRAPH_SCALE_BPS?'G':'B'); //use Giga or Billions
                 }
                 else if (upper >= 1000000)
                 {
