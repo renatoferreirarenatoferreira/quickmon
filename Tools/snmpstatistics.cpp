@@ -32,7 +32,7 @@ void SNMPStatistics::init(int sampleIntervalSeconds, QString Type, QString Calcu
         this->type = TYPE_INT;
 
     //read calculation
-    if ( Calculate.size() > 2 )
+    if ( Calculate.size() >= 2 )
     {
         if ( Calculate.startsWith("+") )
             this->calculate = CALCULATION_ADDITION;
