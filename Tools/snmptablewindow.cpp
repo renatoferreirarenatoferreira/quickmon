@@ -117,7 +117,7 @@ void SNMPTableWindow::configure(QString templateName, QMap<QString, QVariant> te
     //add items using the configured order
     QMapIterator<int, SNMPTableItemReference*> orderedDataListIterator(orderedDataList);
     int column = 1;
-    int columnSize = 625/orderedDataList.size();
+    int columnSize = 650/orderedDataList.size();
     while (orderedDataListIterator.hasNext())
     {
         orderedDataListIterator.next();
