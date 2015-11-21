@@ -14,7 +14,7 @@ All the tools can be launched directly from main screen, what is divided in thre
 
 ![alt tag](https://raw.githubusercontent.com/renatoferreirarenatoferreira/quickmon/master/docs/mainwindow.png)
 
-* **Hosts List**: The host list is located on top of the window and permits to create, edit and remove hosts. Any host to monitored have to be added to host list first, this is needed due to the amount of parameters required for SNMP queries for example.
+* **Hosts List**: The host list is located on top of the window and permits to create, edit and remove hosts. Any host to be monitored have to be added to host list first, this is needed due to the amount of parameters required for SNMP queries for example.
 * **Basic Tools**: Located below the host list, the basic tools can be launched by single clicks over its icons. Multiple instances of each tool can be used simultaneously.
 * **SNMP Tools**: SNMP Tools are small groups of data collectors organized within three basic categories: lists, tables and graphs. Due to the nature of the navigation through trees, collapsing and expanding items, the SNMP Tools require double clicks to be launched. As well as the basic tools, multiples instances can be used at same time.
 
