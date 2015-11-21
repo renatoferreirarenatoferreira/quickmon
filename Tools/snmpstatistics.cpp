@@ -111,8 +111,8 @@ void SNMPStatistics::updateStatistics(bool response, SNMPVariable value)
             {
                 SNMPNumberInformation last = this->lastValues.first();
 
-                //calculate only if last response is valid and the counter is incrementing
-                if (last.response)
+                //calculate only if last response was valid and ignore counter resets
+                if (last.response &&  newest.unsignedNumber >= last.unsignedNumber)
                 {
                     newest.calculatedValue = newest.unsignedNumber - last.unsignedNumber;
 
