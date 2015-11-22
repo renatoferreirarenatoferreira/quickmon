@@ -445,10 +445,10 @@ void SNMPTableWindow::receiveSNMPReply(SNMPData* data)
                         searchItem->tableItem->setText(nextVariable.variantValue.toString());
                 }
             }
-        }
 
-        //force table to repaint
-        ui->tableWidget->viewport()->update();
+            //force table to repaint
+            ui->tableWidget->viewport()->update();
+        }
     } else if (data->responseStatus == SNMP_RESPONSE_TIMEOUT)
         QMetaObject::invokeMethod(this, "warn", Qt::QueuedConnection, Q_ARG(QString, "SNMP error"),
                                                                       Q_ARG(QString, "SNMP request timed out!"));
