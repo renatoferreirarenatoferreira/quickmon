@@ -55,3 +55,31 @@ F5 BIG-IP interface table (from private mib) lauching a interface traffic graph 
 ![alt tag](https://raw.githubusercontent.com/renatoferreirarenatoferreira/quickmon/master/docs/bigipinterfaces.png)
 
 ![alt tag](https://raw.githubusercontent.com/renatoferreirarenatoferreira/quickmon/master/docs/bigipinterfacetraffic.png)
+
+#### List of template items
+
+* Standard MIBs
+ * System (system/hrSystem)
+ * Interfaces (ifTable/ifXTable)
+ * Processes (hrSWRunTable)
+ * Software (hrSWInstalledTable)
+ * Storage (hrStorageTable)
+*  Net-SNMP
+ * CPU Usage (% Last Minute)
+ * Load Average
+ * Memory
+* F5 BIG-IP
+ * General Information
+ * System CPU Usage
+ * System CPU Cores
+ * System Memory Used
+ * Network Interfaces
+ * Total Throughput
+ * Total Connections
+ * Total Connections Rate
+ * SSL Transactions Rate
+ * SSL Throughput
+ * HTTP Requests Rate
+ * LTM - Virtual Servers
+ * LTM - Pools
+ * LTM - Nodes
