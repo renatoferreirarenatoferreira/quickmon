@@ -49,64 +49,64 @@ Don't forget to submit your custom template file to us if you think that it coul
 
 * **/Item Name/Type**
 
-Type of item.
+   Type of item.
 
-Valid values are *Graph*, *List* and *Table*.
+   Valid values are *Graph*, *List* and *Table*.
 
 * **/Item Name/Order**
 
-Number value used to sort all items in template's tree.
+   Number value used to sort all items in template's tree.
 
 * **/Item Name/Order/Items**
 
-List of variables.
+   List of variables.
 
 * **/Item Name/Order/Items/Variable Name**
 
-Variable's name. This key can be changed the represent its real name.
+   Variable's name. This key can be changed the represent its real name.
 
 * **/Item Name/Order/Items/Variable Name/OID**
 
-SNMP OID.
+   SNMP OID.
 
-For the types *Graph* and *List* the OID must be complete with their indexes, usually '.0'. For *Table* types only the OID is needed, as all indexes are discovered during table generation.
+   For the types *Graph* and *List* the OID must be complete with their indexes, usually '.0'. For *Table* types only the OID is needed, as all indexes are discovered during table generation.
 
 * **/Item Name/Order/Items/Variable Name/Type**
 
-Type of variable.
+   Type of variable.
 
-Valid values are *Counter*, *CounterPerSecond*, *Uint* and *Int*.
+   Valid values are *Counter*, *CounterPerSecond*, *Uint* and *Int*.
 
 * **/Item Name/Order/Items/Variable Name/Order**
 
-Number value used to sort all variables.
+   Number value used to sort all variables.
 
 * **/Item Name/Order/Items/Variable Name/Unit**
 
-Value unit.
+   Value unit.
 
-Unit 'B' will be reduced/simplified by 1024, while all the others will be by 1000. Using '%' will make the graph fixed from 0 to 100 and its values are never reduced/simplified. Used only with item type *Graph*.
+   Unit 'B' will be reduced/simplified by 1024, while all the others will be by 1000. Using '%' will make the graph fixed from 0 to 100 and its values are never reduced/simplified. Used only with item type *Graph*.
 
 * **/Item Name/Order/Items/Variable Name/Interval**
 
-Update interval in miliseconds and have to be greater than 1000. Note that some SNMP agents may take more than 5 or 10 seconds to update values.
+   Update interval in miliseconds and have to be greater than 1000. Note that some SNMP agents may take more than 5 or 10 seconds to update values.
 
-Used only with item type *Graph*.
+   Used only with item type *Graph*.
 
 * **/Item Name/Order/Items/Variable Name/Calculate**
 
-Calculate the number before being presented supporting the four operations, "+", "-", "*" and "/".
+   Calculate the number before being presented supporting the four operations, "+", "-", "*" and "/".
 
-Used only with item type *Graph*.
+   Used only with item type *Graph*.
 
 * **/Item Name/Order/Items/Variable Name/ValueMappings**
 
-Map SNMP returns with custom values.
+   Map SNMP returns with custom values.
 
-Used only with item type *List* and *Table*.
+   Used only with item type *List* and *Table*.
 
 * **/Item Name/Order/ContextMenu**
 
-List of conext menu items. It is used to show graphs from table lines and its subitems syntax are identical as the items type *Graph*.
+   List of conext menu items. It is used to show graphs from table lines and its subitems syntax are identical as the items type *Graph*.
 
-Used only with type *Table*.
+   Used only with type *Table*.
