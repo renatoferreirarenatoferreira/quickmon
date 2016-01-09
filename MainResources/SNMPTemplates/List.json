@@ -10,5 +10,9 @@
     "F5 BIG-IP": {
         "Order": 2,
         "File": ":/SNMPTemplates/F5_BIG-IP"
+    },
+    "User's Template": {
+        "Order": 3,
+        "File": "User.json"
     }
 }
