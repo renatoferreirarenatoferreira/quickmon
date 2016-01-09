@@ -84,15 +84,19 @@ void SNMPDataTreeWidget::loadTemplates()
         QTreeWidgetItem* topLevelItem = new QTreeWidgetItem();
         topLevelItem->setText(0, externalIterator.value().first());
         topLevelItem->setIcon(0, this->closeIcon);
-        this->topLevelItems.append(topLevelItem);
 
         //ordered list/map
         QMap<int, QTreeWidgetItem*> internalOrderedList;
 
-        //add aditional files
+        //try to open template file
         QFile templateFile(externalIterator.value().at(1));
         if (!templateFile.open(QIODevice::ReadOnly | QIODevice::Text))
                 continue;
+
+        //add template to main list only after confirming the existence of its file
+        this->topLevelItems.append(topLevelItem);
+
+        //parse template file
         QJsonDocument templateJsonDocument = QJsonDocument::fromJson(templateFile.readAll());
         QMapIterator<QString, QVariant> templateIterator(templateJsonDocument.object().toVariantMap());
         while (templateIterator.hasNext())
