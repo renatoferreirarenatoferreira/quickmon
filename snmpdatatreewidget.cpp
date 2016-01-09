@@ -60,7 +60,18 @@ void SNMPDataTreeWidget::loadTemplates()
         QMap<QString, QVariant> templateItems = templateListIterator.value().toMap();
         QStringList templateData;
         templateData.append(templateListIterator.key());
-        templateData.append(templateItems.value("File").toString());
+
+        if (templateItems.value("File").toString().startsWith(":"))
+            //read file from resources
+            templateData.append(templateItems.value("File").toString());
+        else
+            //read file from application path
+#ifdef Q_OS_WIN32
+            templateData.append(QCoreApplication::applicationDirPath() + "/" + templateItems.value("File").toString());
+#else
+            templateData.append("~/." + templateItems.value("File").toString());
+#endif
+
         externalOrderedList.insert(templateItems.value("Order").toInt(), templateData);
     }
 
