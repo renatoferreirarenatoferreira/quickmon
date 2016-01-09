@@ -45,7 +45,7 @@ Don't forget to submit your custom template file to us if you think that it coul
 
 * **/Item Name**
 
-⋅⋅⋅Name of the item. This key can be changed the represent its real name.
+   Name of the item. This key can be changed the represent its real name.
 
 * **/Item Name/Type**
 
