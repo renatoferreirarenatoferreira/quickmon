@@ -38,6 +38,7 @@ Don't forget to submit your custom template file to us if you think that it coul
         "ContextMenu": {
             ...
         }
+    }
 }
 ```
 
