@@ -32,8 +32,8 @@ Don't forget to submit your custom template file to us if you think that it coul
                 "ValueMappings": {
                     "0": "value(0)",
                     "1": "value(1)"
-                },
-            },
+                }
+            }
         },
         "ContextMenu": {
             ...
