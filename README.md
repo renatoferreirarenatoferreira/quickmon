@@ -7,6 +7,7 @@ QuickMon is a small monitoring tool that provides instantaneous information rega
 
 * [QuickMon v0.4.0 32bit](https://github.com/renatoferreirarenatoferreira/quickmon/releases/download/v0.4.0/QuickMon-v0.4.0-32bit.zip)
 * [QuickMon v0.4.0 64bit](https://github.com/renatoferreirarenatoferreira/quickmon/releases/download/v0.4.0/QuickMon-v0.4.0-64bit.zip)
+
 #### Basic usage
 
 All the tools can be launched directly from main screen, what is divided in three parts.
