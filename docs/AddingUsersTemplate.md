@@ -1,6 +1,6 @@
 # Adding user's template
 
-Since version v0.4.0 it's possible to add a custom template file to have your own SNMP items. It can be done by simply creating a fale named 'User.json' in the same directory where the QuickMon's excutable is located.
+Since version v0.4.0 it's possible to add a custom template file to have your own SNMP items. It can be done by simply creating a file named 'User.json' in the same directory where the QuickMon's excutable is located.
 
 Once the file is created, the QuickMon will show the 'User's Template' under SNMP Tools like in the image below:
 
