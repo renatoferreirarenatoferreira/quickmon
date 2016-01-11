@@ -70,9 +70,9 @@ FORMS    += mainwindow.ui \
 RESOURCES += \
     MainResources.qrc
 
-VERSION = 0.3.2
+VERSION = 0.4.0
 DEFINES += APPLICATION_NAME=\\\"QuickMon\\\"
-DEFINES += APPLICATION_VERSION=\\\"0.3.2\\\"
+DEFINES += APPLICATION_VERSION=\\\"0.4.0\\\"
 
 QMAKE_TARGET_COMPANY = "Renato A. Ferreira"
 QMAKE_TARGET_DESCRIPTION = "Network troubleshooting tool."

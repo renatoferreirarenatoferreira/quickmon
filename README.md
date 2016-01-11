@@ -5,9 +5,8 @@ QuickMon is a small monitoring tool that provides instantaneous information rega
 
 #### Windows binaries
 
-* [QuickMon v0.3.2 32bit](https://github.com/renatoferreirarenatoferreira/quickmon/releases/download/v0.3.2/QuickMon-v0.3.2-32bit.zip)
-* [QuickMon v0.3.2 64bit](https://github.com/renatoferreirarenatoferreira/quickmon/releases/download/v0.3.2/QuickMon-v0.3.2-64bit.zip)
-
+* [QuickMon v0.4.0 32bit](https://github.com/renatoferreirarenatoferreira/quickmon/releases/download/v0.4.0/QuickMon-v0.4.0-32bit.zip)
+* [QuickMon v0.4.0 64bit](https://github.com/renatoferreirarenatoferreira/quickmon/releases/download/v0.4.0/QuickMon-v0.4.0-64bit.zip)
 #### Basic usage
 
 All the tools can be launched directly from main screen, what is divided in three parts.
@@ -56,7 +55,7 @@ F5 BIG-IP interface table (from private mib) lauching a interface traffic graph 
 
 ![alt tag](https://raw.githubusercontent.com/renatoferreirarenatoferreira/quickmon/master/docs/bigipinterfacetraffic.png)
 
-#### List of template items
+#### List of native SNMP template items
 
 * Standard MIBs
  * System (system/hrSystem)
@@ -83,3 +82,9 @@ F5 BIG-IP interface table (from private mib) lauching a interface traffic graph 
  * LTM - Virtual Servers
  * LTM - Pools
  * LTM - Nodes
+
+#### Adding custom SNMP templates
+
+Since version v0.4.0 it's possible to add a custom template file to have your own SNMP items. Complete instructions can be found in [Adding user's template](https://github.com/renatoferreirarenatoferreira/quickmon/master/docs/AddingUsersTemplate.md).
+
+Don't forget to submit your custom template file to us if you think that it could be useful to other users. User contributions will be added natively in future releases.
