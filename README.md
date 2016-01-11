@@ -85,6 +85,6 @@ F5 BIG-IP interface table (from private mib) lauching a interface traffic graph 
 
 #### Adding custom SNMP templates
 
-Since version v0.4.0 it's possible to add a custom template file to have your own SNMP items. Complete instructions can be found in [Adding user's template](https://github.com/renatoferreirarenatoferreira/quickmon/master/docs/AddingUsersTemplate.md).
+Since version v0.4.0 it's possible to add a custom template file to have your own SNMP items. Complete instructions can be found in [Adding user's template](https://github.com/renatoferreirarenatoferreira/quickmon/blob/master/docs/AddingUsersTemplate.md).
 
 Don't forget to submit your custom template file to us if you think that it could be useful to other users. User contributions will be added natively in future releases.
