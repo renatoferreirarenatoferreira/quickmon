@@ -3,10 +3,19 @@
 
 QuickMon is a small monitoring tool that provides instantaneous information regarding the network and application infrastructure. It was made to help us to take quick decisions in our daily tasks. Note that it's not the intention of this tool to store long term information or generate alerts, for this kind of functionality I'm very happy by using Zabbix.
 
-#### Windows binaries
+Built using:
+
+* [Qt Creator](http://www.qt.io/ide/);
+* [Qt Framework](http://www.qt.io/qt-framework/);
+* [QCustomPlot](http://www.qcustomplot.com/) (already added in project source tree);
+* [SNMP++ API](http://www.agentpp.com/api/cpp/snmp_pp.html).
+
+#### Portable Windows binaries
 
 * [QuickMon v0.4.0 32bit](https://github.com/renatoferreirarenatoferreira/quickmon/releases/download/v0.4.0/QuickMon-v0.4.0-32bit.zip)
 * [QuickMon v0.4.0 64bit](https://github.com/renatoferreirarenatoferreira/quickmon/releases/download/v0.4.0/QuickMon-v0.4.0-64bit.zip)
+
+*All binaries are statically linked, what generates single slightly bigger executables.*
 
 #### Basic usage
 
