@@ -69,7 +69,7 @@ void HostEditor::editHost(int hostID)
         else
             ui->radioButton_SNMPVersion_None->setChecked(true);
 
-        ui->lineEdit_Community->setText(query.value("snmpcommunity").toString());
+        ui->lineEdit_CommunityUser->setText(query.value("snmpcommunityuser").toString());
 
         QString value = query.value("snmpv3seclevel").toString();
         if (value == "authNoPriv")
@@ -172,7 +172,7 @@ void HostEditor::on_buttonBox_accepted()
                                                                     "name, "
                                                                     "address, "
                                                                     "snmpversion, "
-                                                                    "snmpcommunity, "
+                                                                    "snmpcommunityuser, "
                                                                     "snmpv3seclevel, "
                                                                     "snmpv3authprotocol, "
                                                                     "snmpv3authpassphrase, "
@@ -182,7 +182,7 @@ void HostEditor::on_buttonBox_accepted()
                                                                     ":name, "
                                                                     ":address, "
                                                                     ":snmpversion, "
-                                                                    ":snmpcommunity, "
+                                                                    ":snmpcommunityuser, "
                                                                     ":snmpv3seclevel, "
                                                                     ":snmpv3authprotocol, "
                                                                     ":snmpv3authpassphrase, "
@@ -200,7 +200,7 @@ void HostEditor::on_buttonBox_accepted()
                 query.bindValue(":snmpversion", 2);
             else
                 query.bindValue(":snmpversion", 3);
-            query.bindValue(":snmpcommunity", ui->lineEdit_Community->text());
+            query.bindValue(":snmpcommunityuser", ui->lineEdit_CommunityUser->text());
             query.bindValue(":snmpv3seclevel", ui->comboBox_SecurityLevel->currentText());
             query.bindValue(":snmpv3authprotocol", ui->comboBox_Authentication->currentText());
             query.bindValue(":snmpv3authpassphrase", ui->lineEdit_Authentication->text());
@@ -213,7 +213,7 @@ void HostEditor::on_buttonBox_accepted()
                                                                     "name=:name, "
                                                                     "address=:address, "
                                                                     "snmpversion=:snmpversion, "
-                                                                    "snmpcommunity=:snmpcommunity, "
+                                                                    "snmpcommunityuser=:snmpcommunityuser, "
                                                                     "snmpv3seclevel=:snmpv3seclevel, "
                                                                     "snmpv3authprotocol=:snmpv3authprotocol, "
                                                                     "snmpv3authpassphrase=:snmpv3authpassphrase, "
@@ -231,7 +231,7 @@ void HostEditor::on_buttonBox_accepted()
                 query.bindValue(":snmpversion", 2);
             else
                 query.bindValue(":snmpversion", 3);
-            query.bindValue(":snmpcommunity", ui->lineEdit_Community->text());
+            query.bindValue(":snmpcommunityuser", ui->lineEdit_CommunityUser->text());
             query.bindValue(":snmpv3seclevel", ui->comboBox_SecurityLevel->currentText());
             query.bindValue(":snmpv3authprotocol", ui->comboBox_Authentication->currentText());
             query.bindValue(":snmpv3authpassphrase", ui->lineEdit_Authentication->text());
