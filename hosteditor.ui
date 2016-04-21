@@ -154,7 +154,7 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
       <item>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="label_CommunityUser">
         <property name="minimumSize">
          <size>
           <width>70</width>
@@ -167,7 +167,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_Community"/>
+       <widget class="QLineEdit" name="lineEdit_CommunityUser"/>
       </item>
      </layout>
     </item>

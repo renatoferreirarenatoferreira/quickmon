@@ -32,7 +32,7 @@ void HostEditor::addHost()
     ui->lineEdit_Name->setText(value);
     ui->lineEdit_Address->setText(value);
     ui->radioButton_SNMPVersion_None->setChecked(true);
-    ui->lineEdit_Community->setText(value);
+    ui->lineEdit_CommunityUser->setText(value);
     ui->comboBox_SecurityLevel->setCurrentIndex(0);
     ui->comboBox_Authentication->setCurrentIndex(0);
     ui->lineEdit_Authentication->setText(value);
@@ -121,21 +121,23 @@ void HostEditor::updateUI()
 {
     if (ui->radioButton_SNMPVersion_None->isChecked())
     {
-        ui->lineEdit_Community->setEnabled(false);
+        ui->lineEdit_CommunityUser->setEnabled(false);
         ui->comboBox_SecurityLevel->setEnabled(false);
         ui->comboBox_Authentication->setEnabled(false);
         ui->lineEdit_Authentication->setEnabled(false);
         ui->comboBox_Privacy->setEnabled(false);
         ui->lineEdit_Privacy->setEnabled(false);
     } else if (ui->radioButton_SNMPVersion_1->isChecked() || ui->radioButton_SNMPVersion_2c->isChecked()) {
-        ui->lineEdit_Community->setEnabled(true);
+        ui->label_CommunityUser->setText("Community:");
+        ui->lineEdit_CommunityUser->setEnabled(true);
         ui->comboBox_SecurityLevel->setEnabled(false);
         ui->comboBox_Authentication->setEnabled(false);
         ui->lineEdit_Authentication->setEnabled(false);
         ui->comboBox_Privacy->setEnabled(false);
         ui->lineEdit_Privacy->setEnabled(false);
     } else {
-        ui->lineEdit_Community->setEnabled(false);
+        ui->label_CommunityUser->setText("Username:");
+        ui->lineEdit_CommunityUser->setEnabled(true);
         ui->comboBox_SecurityLevel->setEnabled(true);
 
         if (ui->comboBox_SecurityLevel->currentIndex() == 0)
