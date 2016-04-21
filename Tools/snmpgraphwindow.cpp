@@ -183,7 +183,7 @@ void SNMPGraphWindow::run(int hostID)
 
         //copy snmp data
         this->destinationSNMPVersion = query.value("snmpversion").toInt();
-        this->destinationSNMPCommunity = query.value("snmpcommunity").toString();
+        this->destinationSNMPCommunityUser = query.value("snmpcommunityuser").toString();
         this->destinationSNMPv3SecLevel = query.value("snmpv3seclevel").toString();
         this->destinationSNMPv3AuthProtocol = query.value("snmpv3authprotocol").toString();
         this->destinationSNMPv3AuthPassPhrase = query.value("snmpv3authpassphrase").toString();
@@ -245,11 +245,12 @@ SNMPData* SNMPGraphWindow::updateValues()
         return this->clientInstance->SNMPGet(this->destinationSNMPVersion,
                                              this->destinationAddress,
                                              this->OIDs,
-                                             this->destinationSNMPCommunity,
+                                             this->destinationSNMPCommunityUser,
                                              this);
     else if (this->destinationSNMPVersion == 3)
         return this->clientInstance->SNMPv3Get(this->destinationAddress,
                                                this->OIDs,
+                                               this->destinationSNMPCommunityUser,
                                                this->destinationSNMPv3SecLevel,
                                                this->destinationSNMPv3AuthProtocol,
                                                this->destinationSNMPv3AuthPassPhrase,

@@ -66,7 +66,7 @@ private:
     QHostAddress destinationAddress;
     int lookupID;
     int destinationSNMPVersion;
-    QString destinationSNMPCommunity;
+    QString destinationSNMPCommunityUser;
     QString destinationSNMPv3SecLevel;
     QString destinationSNMPv3AuthProtocol;
     QString destinationSNMPv3AuthPassPhrase;
