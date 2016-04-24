@@ -265,6 +265,7 @@ SNMPData* SNMPTableWindow::updateValues()
     else if (this->destinationSNMPVersion == 3)
         return this->clientInstance->SNMPv3Walk(this->destinationAddress,
                                                 this->OIDs.first(),
+                                                this->destinationSNMPCommunityUser,
                                                 this->destinationSNMPv3SecLevel,
                                                 this->destinationSNMPv3AuthProtocol,
                                                 this->destinationSNMPv3AuthPassPhrase,
