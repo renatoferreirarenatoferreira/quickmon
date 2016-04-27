@@ -250,9 +250,13 @@ void SNMPListWindow::receiveSNMPReply(SNMPData* data)
     } else if (data->responseStatus == SNMP_RESPONSE_TIMEOUT)
         QMetaObject::invokeMethod(this, "warn", Qt::QueuedConnection, Q_ARG(QString, "SNMP error"),
                                                                       Q_ARG(QString, "SNMP request timed out!"));
-    else
+    else {
+        //show error
+        QString formattedError = "Critical error collecting SNMP Mib data! (";
+        formattedError.append(data->errorMessage).append(")");
         QMetaObject::invokeMethod(this, "warn", Qt::QueuedConnection, Q_ARG(QString, "SNMP error"),
-                                                                      Q_ARG(QString, "Unknown error in SNMP request!"));
+                                                                      Q_ARG(QString, formattedError));
+    }
 
     //disable waiting flag
     this->waitingForReply = false;
