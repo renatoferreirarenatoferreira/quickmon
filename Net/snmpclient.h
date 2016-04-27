@@ -61,18 +61,9 @@ struct SNMPData {
 
     //v1 and v2c data
     CTarget* communityTarget;
-    OctetStr community;
 
     //v3 data
     UTarget* userTarget;
-    OctetStr securityName;
-    OctetStr authPass;
-    OctetStr privPass;
-    OctetStr contextName;
-    OctetStr contextEngineID;
-    long securityLevel;
-    long authProtocol;
-    long privProtocol;
 
     //callback
     PVOID listener;
@@ -103,6 +94,7 @@ public:
                       ISNMPReplyListener* listener);
     SNMPData* SNMPv3Get(QHostAddress address,
                         QStringList OIDs,
+                        QString userName,
                         QString v3SecLevel,
                         QString v3AuthProtocol,
                         QString v3AuthPassPhrase,
@@ -116,6 +108,7 @@ public:
                        ISNMPReplyListener* listener);
     SNMPData* SNMPv3Walk(QHostAddress address,
                          QString OID,
+                         QString userName,
                          QString v3SecLevel,
                          QString v3AuthProtocol,
                          QString v3AuthPassPhrase,
@@ -136,11 +129,13 @@ private:
     bool supportv4;
     bool supportv6;
     v3MP* v3_MP;
+    OctetStr contextName;
+    OctetStr contextEngineID;
     QHash<QString, QHash<QString, QString>> valueMappings;
     SNMPData* prepareData(int version,
                           QHostAddress address,
                           QStringList OIDs,
-                          QString community,
+                          QString communityUser,
                           QString v3SecLevel,
                           QString v3AuthProtocol,
                           QString v3AuthPassPhrase,

@@ -19,7 +19,9 @@ SNMPClient::SNMPClient(QObject *parent) : QObject(parent)
         this->SNMPv6->start_poll_thread(10);
 
     int construct_status;
-    this->v3_MP = new v3MP("dummy", 0, construct_status);
+    this->v3_MP = new v3MP("QuickMon", 1, construct_status);
+    this->contextName = OctetStr("");
+    this->contextEngineID = OctetStr("");
 
     //register type returned by SNMP requests
     qRegisterMetaType<QList<SNMPVariable>>("QList<SNMPVariable>");
@@ -91,7 +93,7 @@ QString SNMPClient::mapValue(QString OID, QString key)
 SNMPData* SNMPClient::prepareData(int version,
                                   QHostAddress address,
                                   QStringList OIDs,
-                                  QString community,
+                                  QString communityUser,
                                   QString v3SecLevel,
                                   QString v3AuthProtocol,
                                   QString v3AuthPassPhrase,
@@ -115,6 +117,7 @@ SNMPData* SNMPClient::prepareData(int version,
 
     //destination address
     returnData->address = new UdpAddress(address.toString().toUtf8().constData());
+    returnData->address->set_port(SNMP_PP_DEFAULT_SNMP_PORT);
 
     //create lists of OIDs
     Vb nextVar;
@@ -156,14 +159,11 @@ SNMPData* SNMPClient::prepareData(int version,
         //create target object
         returnData->communityTarget = new CTarget(*returnData->address);
 
-        //copy community
-        returnData->community = community.toUtf8().constData();
-
         //configure community based authentication
         returnData->communityTarget->set_version(returnData->version);
         returnData->communityTarget->set_retry(SNMPCLIENT_RETRIES);
         returnData->communityTarget->set_timeout(SNMPCLIENT_MILLISECONDSTIMEOUT/10);
-        returnData->communityTarget->set_readcommunity(returnData->community);
+        returnData->communityTarget->set_readcommunity(communityUser.toUtf8().constData());
 
         returnData->target = returnData->communityTarget;
     } else if (version == 3)
@@ -171,66 +171,56 @@ SNMPData* SNMPClient::prepareData(int version,
         //create target object
         returnData->userTarget = new UTarget(*returnData->address);
 
-        //set security level
-        if (v3SecLevel == "noAuthNoPriv")
-            returnData->securityLevel = SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV;
-        else if (v3SecLevel == "authNoPriv")
-            returnData->securityLevel = SNMP_SECURITY_LEVEL_AUTH_NOPRIV;
-        else if (v3SecLevel == "authPriv")
-            returnData->securityLevel = SNMP_SECURITY_LEVEL_AUTH_PRIV;
-
         //set authentication protocol SHA/MD5
+        int authProtocol = SNMP_AUTHPROTOCOL_NONE;
         if (v3AuthProtocol == "SHA")
-            returnData->authProtocol = SNMP_AUTHPROTOCOL_HMACSHA;
+            authProtocol = SNMP_AUTHPROTOCOL_HMACSHA;
         else if (v3AuthProtocol == "MD5")
-            returnData->authProtocol = SNMP_AUTHPROTOCOL_HMACMD5;
-        else
-            returnData->authProtocol = SNMP_AUTHPROTOCOL_NONE;
+            authProtocol = SNMP_AUTHPROTOCOL_HMACMD5;
 
         //set privacy protocol
+        int privProtocol = SNMP_PRIVPROTOCOL_NONE;
         if (v3PrivProtocol == "DES")
-            returnData->privProtocol = SNMP_PRIVPROTOCOL_DES;
+            privProtocol = SNMP_PRIVPROTOCOL_DES;
         else if (v3PrivProtocol == "3DES")
-            returnData->privProtocol = SNMP_PRIVPROTOCOL_3DESEDE;
+            privProtocol = SNMP_PRIVPROTOCOL_3DESEDE;
         else if (v3PrivProtocol == "IDEA")
-            returnData->privProtocol = SNMP_PRIVPROTOCOL_IDEA;
+            privProtocol = SNMP_PRIVPROTOCOL_IDEA;
         else if (v3PrivProtocol == "AES128")
-            returnData->privProtocol = SNMP_PRIVPROTOCOL_AES128;
+            privProtocol = SNMP_PRIVPROTOCOL_AES128;
         else if (v3PrivProtocol == "AES192")
-            returnData->privProtocol = SNMP_PRIVPROTOCOL_AES192;
+            privProtocol = SNMP_PRIVPROTOCOL_AES192;
         else if (v3PrivProtocol == "AES256")
-            returnData->privProtocol = SNMP_PRIVPROTOCOL_AES256;
-        else
-            returnData->privProtocol = SNMP_PRIVPROTOCOL_NONE;
-
-        //copy authentication data
-        returnData->securityName = QString("SN:").append(address.toString()).toUtf8().constData();
-        returnData->authPass = v3AuthPassPhrase.toUtf8().constData();
-        returnData->privPass = v3PrivPassPhrase.toUtf8().constData();
-        returnData->contextName = "";
-        returnData->contextEngineID = "";
+            privProtocol = SNMP_PRIVPROTOCOL_AES256;
 
         //configure user based authentication
-        this->v3_MP->get_usm()->add_usm_user(returnData->securityName,
-                                             returnData->authProtocol,
-                                             returnData->privProtocol,
-                                             returnData->authPass,
-                                             returnData->privPass);
+        this->v3_MP->get_usm()->add_usm_user(communityUser.toUtf8().constData(),
+                                             authProtocol,
+                                             privProtocol,
+                                             v3AuthPassPhrase.toUtf8().constData(),
+                                             v3PrivPassPhrase.toUtf8().constData());
 
         //configure target
         returnData->userTarget->set_version(returnData->version);
         returnData->userTarget->set_retry(SNMPCLIENT_RETRIES);
         returnData->userTarget->set_timeout(SNMPCLIENT_MILLISECONDSTIMEOUT/10);
         returnData->userTarget->set_security_model(SNMP_SECURITY_MODEL_USM);
-        returnData->userTarget->set_security_name(returnData->securityName);
+        returnData->userTarget->set_security_name(communityUser.toUtf8().constData());
 
         //configure pdu
         for (int i = 0; i < returnData->pduList.size(); ++i)
         {
             Pdu* currPdu = returnData->pduList.at(i);
-            currPdu->set_security_level(returnData->securityLevel);
-            currPdu->set_context_name(returnData->contextName);
-            currPdu->set_context_engine_id(returnData->contextEngineID);
+            currPdu->set_context_name(this->contextName);
+            currPdu->set_context_engine_id(this->contextEngineID);
+
+            //set security level
+            if (v3SecLevel == "noAuthNoPriv")
+                currPdu->set_security_level(SNMP_SECURITY_LEVEL_NOAUTH_NOPRIV);
+            else if (v3SecLevel == "authNoPriv")
+                currPdu->set_security_level(SNMP_SECURITY_LEVEL_AUTH_NOPRIV);
+            else if (v3SecLevel == "authPriv")
+                currPdu->set_security_level(SNMP_SECURITY_LEVEL_AUTH_PRIV);
         }
 
         returnData->target = returnData->userTarget;
@@ -258,6 +248,7 @@ SNMPData* SNMPClient::SNMPGet(int version,
 
 SNMPData* SNMPClient::SNMPv3Get(QHostAddress address,
                                 QStringList OIDs,
+                                QString userName,
                                 QString v3SecLevel,
                                 QString v3AuthProtocol,
                                 QString v3AuthPassPhrase,
@@ -265,7 +256,7 @@ SNMPData* SNMPClient::SNMPv3Get(QHostAddress address,
                                 QString v3PrivPassPhrase,
                                 ISNMPReplyListener* listener)
 {
-    SNMPData* data = this->prepareData(3, address, OIDs, NULL, v3SecLevel, v3AuthProtocol, v3AuthPassPhrase, v3PrivProtocol, v3PrivPassPhrase, listener);
+    SNMPData* data = this->prepareData(3, address, OIDs, userName, v3SecLevel, v3AuthProtocol, v3AuthPassPhrase, v3PrivProtocol, v3PrivPassPhrase, listener);
     data->queryType = SNMPCLIENT_QUERYTYPE_GET;
 
     if (data->address->get_ip_version() == Address::version_ipv4)
@@ -298,6 +289,7 @@ SNMPData* SNMPClient::SNMPWalk(int version,
 
 SNMPData* SNMPClient::SNMPv3Walk(QHostAddress address,
                                  QString OID,
+                                 QString userName,
                                  QString v3SecLevel,
                                  QString v3AuthProtocol,
                                  QString v3AuthPassPhrase,
@@ -308,7 +300,7 @@ SNMPData* SNMPClient::SNMPv3Walk(QHostAddress address,
     QStringList OIDs;
     OIDs.append(OID);
 
-    SNMPData* data = this->prepareData(3, address, OIDs, NULL, v3SecLevel, v3AuthProtocol, v3AuthPassPhrase, v3PrivProtocol, v3PrivPassPhrase, listener);
+    SNMPData* data = this->prepareData(3, address, OIDs, userName, v3SecLevel, v3AuthProtocol, v3AuthPassPhrase, v3PrivProtocol, v3PrivPassPhrase, listener);
     data->queryType = SNMPCLIENT_QUERYTYPE_WALK;
 
     if (data->address->get_ip_version() == Address::version_ipv4)
