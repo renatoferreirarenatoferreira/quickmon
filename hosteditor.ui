@@ -123,6 +123,9 @@
       </item>
       <item>
        <widget class="QRadioButton" name="radioButton_SNMPVersion_1">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>1</string>
         </property>
