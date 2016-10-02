@@ -1,5 +1,5 @@
 {
-    "System (system/hrSystem)": {
+    "System (system)": {
         "Type": "List",
         "Order": 0,
         "Items": {
@@ -104,31 +104,6 @@
             "sysLocation": {
                 "OID": "1.3.6.1.2.1.1.6.0",
                 "Order": 5
-            },
-            "hrSystemUptime": {
-                "OID": "1.3.6.1.2.1.25.1.1.0",
-                "Order": 6
-            },
-            "hrSystemDate": {
-                "OID": "1.3.6.1.2.1.25.1.2.0",
-                "Order": 7,
-                "Type": "DateAndTime"
-            },
-            "hrSystemInitialLoadDevice": {
-                "OID": "1.3.6.1.2.1.25.1.3.0",
-                "Order": 8
-            },
-            "hrSystemInitialLoadParameters": {
-                "OID": "1.3.6.1.2.1.25.1.4.0",
-                "Order": 9
-            },
-            "hrSystemNumUsers": {
-                "OID": "1.3.6.1.2.1.25.1.5.0",
-                "Order": 10
-            },
-            "hrSystemProcesses": {
-                "OID": "1.3.6.1.2.1.25.1.6.0",
-                "Order": 11
             }
         }
     },
@@ -505,9 +480,40 @@
             }
         }
     },
+    "Host (hrSystem)": {
+        "Type": "List",
+        "Order": 2,
+        "Items": {
+            "hrSystemUptime": {
+                "OID": "1.3.6.1.2.1.25.1.1.0",
+                "Order": 6
+            },
+            "hrSystemDate": {
+                "OID": "1.3.6.1.2.1.25.1.2.0",
+                "Order": 7,
+                "Type": "DateAndTime"
+            },
+            "hrSystemInitialLoadDevice": {
+                "OID": "1.3.6.1.2.1.25.1.3.0",
+                "Order": 8
+            },
+            "hrSystemInitialLoadParameters": {
+                "OID": "1.3.6.1.2.1.25.1.4.0",
+                "Order": 9
+            },
+            "hrSystemNumUsers": {
+                "OID": "1.3.6.1.2.1.25.1.5.0",
+                "Order": 10
+            },
+            "hrSystemProcesses": {
+                "OID": "1.3.6.1.2.1.25.1.6.0",
+                "Order": 11
+            }
+        }
+    },
     "Processes (hrSWRunTable)": {
         "Type": "Table",
-        "Order": 2,
+        "Order": 3,
         "Items": {
             "hrSWRunIndex": {
                 "OID": "1.3.6.1.2.1.25.4.2.1.1",
@@ -529,7 +535,7 @@
     },
     "Software (hrSWInstalledTable)": {
         "Type": "Table",
-        "Order": 3,
+        "Order": 4,
         "Items": {
             "hrSWInstalledName": {
                 "OID": "1.3.6.1.2.1.25.6.3.1.2",
@@ -544,7 +550,7 @@
     },
     "Storage (hrStorageTable)": {
         "Type": "Table",
-        "Order": 4,
+        "Order": 5,
         "Items": {
             "hrStorageDescr": {
                 "OID": "1.3.6.1.2.1.25.2.3.1.3",
