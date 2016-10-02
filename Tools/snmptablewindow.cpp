@@ -335,6 +335,8 @@ void SNMPTableWindow::receiveSNMPReply(SNMPData* data)
     if (data->requestAddress != this->destinationAddress)
         return;
 
+    bool emptyTable = false;
+
     if (data->responseStatus == SNMP_RESPONSE_SUCCESS)
     {
         if (data->queryType == SNMPCLIENT_QUERYTYPE_WALK) //phase 1
@@ -414,7 +416,10 @@ void SNMPTableWindow::receiveSNMPReply(SNMPData* data)
             }
 
             //get remaining table data
-            this->SNMPdata = this->updateValues(remainingOIDs);
+            if (remainingOIDs.size() > 0)
+                this->SNMPdata = this->updateValues(remainingOIDs);
+            else
+                emptyTable = true;
 
         } if (data->queryType == SNMPCLIENT_QUERYTYPE_GET) //phase 2
         {
@@ -462,8 +467,8 @@ void SNMPTableWindow::receiveSNMPReply(SNMPData* data)
                                                                       Q_ARG(QString, formattedError));
     }
 
-    //disable waiting flag (ONLY AFTER PHASE 2 or in case of errors)
-    if (data->queryType == SNMPCLIENT_QUERYTYPE_GET || data->responseStatus != SNMP_RESPONSE_SUCCESS)
+    //disable waiting flag (ONLY AFTER PHASE 2 or in case of errors or in case of empty table)
+    if (data->queryType == SNMPCLIENT_QUERYTYPE_GET || data->responseStatus != SNMP_RESPONSE_SUCCESS || emptyTable)
         this->waitingForReply = false;
 
 #ifdef QT_DEBUG
