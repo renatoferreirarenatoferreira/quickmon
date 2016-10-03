@@ -12,8 +12,8 @@ Built using:
 
 #### Portable Windows binaries
 
-* [QuickMon v0.5.1 32bit](https://github.com/renatoferreirarenatoferreira/quickmon/releases/download/v0.5.1/QuickMon-v0.5.1-32bit.zip)
-* [QuickMon v0.5.1 64bit](https://github.com/renatoferreirarenatoferreira/quickmon/releases/download/v0.5.1/QuickMon-v0.5.1-64bit.zip)
+* [QuickMon v0.5.2 32bit](https://github.com/renatoferreirarenatoferreira/quickmon/releases/download/v0.5.2/QuickMon-v0.5.2-32bit.zip)
+* [QuickMon v0.5.2 64bit](https://github.com/renatoferreirarenatoferreira/quickmon/releases/download/v0.5.2/QuickMon-v0.5.2-64bit.zip)
 
 *All binaries are statically linked, what generates single slightly bigger executables.*
 
